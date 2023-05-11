@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AudioSwitcher.AudioApi.CoreAudio" Version="3.0.1" />
+    <PackageReference Include="NAudio" Version="2.1.0" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,9 @@
-﻿using System;
+﻿using JUtils.model;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -20,7 +24,6 @@ namespace JUtils
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool running = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -28,15 +31,8 @@ namespace JUtils
 
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
-            running = !running;
-            if (running) {
-                tbHellow.Text = "Running";
-                btnRun.Content = "Stop";
-            } else
-            {
-            tbHellow.Text = "";
-            btnRun.Content = "Run";
-            }
+            MicMute.ToggleMic();
+
         }
     }
 }
