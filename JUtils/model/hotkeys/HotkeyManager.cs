@@ -60,7 +60,6 @@ namespace JUtils.model.hotkeys
         static HotkeysManager()
         {
             Hotkeys = new List<GlobalHotkey>();
-            RequiresModifierKey = true;
         }
 
         /// <summary>
@@ -70,7 +69,6 @@ namespace JUtils.model.hotkeys
         {
             HookID = SetHook(LowLevelProc);
             IsHookSetup = true;
-            RequiresModifierKey = requireMod;
         }
 
         /// <summary>
@@ -106,10 +104,9 @@ namespace JUtils.model.hotkeys
         /// </summary>
         private static void CheckHotkeys()  
         {
-            if (RequiresModifierKey && Keyboard.Modifiers == ModifierKeys.None) return;
             foreach (GlobalHotkey hotkey in Hotkeys)
             {
-                if (Keyboard.Modifiers == hotkey.Modifier && !hotkey.pressed)
+                if (!hotkey.pressed)
                 {
                     foreach (Key key in hotkey.Keys)
                     {
@@ -145,22 +142,18 @@ namespace JUtils.model.hotkeys
         /// <param name="key"></param>
         /// <param name="callbackMethod">If this is not null, the callback method will be checked</param>
         /// <returns></returns>
-        public static List<GlobalHotkey> FindHotkeys(ModifierKeys modifier, Key[] keys)
+        public static List<GlobalHotkey> FindHotkeys(Key[] keys)
         {
             List<GlobalHotkey> hotkeys = new List<GlobalHotkey>();
             List<Key> keyList = new List<Key>(keys);
             foreach (GlobalHotkey hotkey in Hotkeys)
-                if (hotkey.Modifier == modifier)
-                {
-                    bool allKeyPressed = true;
-                    foreach (Key key in hotkey.Keys) 
-                        if (!keyList.Contains(key)) 
-                            allKeyPressed = false;
-
-                    if (allKeyPressed) hotkeys.Add(hotkey);
-                }
-                    
-
+            {
+                bool allKeyPressed = true;
+                foreach (Key key in hotkey.Keys)
+                    if (!keyList.Contains(key))
+                        allKeyPressed = false;
+                if (allKeyPressed) hotkeys.Add(hotkey);
+            }
             return hotkeys;
         }
 
@@ -171,9 +164,9 @@ namespace JUtils.model.hotkeys
         /// <param name="key"></param>
         /// <param name="callbackMethod"></param>
         /// <param name="canExecute"></param>
-        public static void AddHotkey(ModifierKeys modifier, Key[] keys, Action callbackMethod, bool canExecute = true)
+        public static void AddHotkey(Key[] keys, Action callbackMethod, bool canExecute = true)
         {
-            AddHotkey(new GlobalHotkey(modifier, keys, callbackMethod, canExecute));
+            AddHotkey(new GlobalHotkey(keys, callbackMethod, canExecute));
         }
 
         /// <summary>
@@ -187,10 +180,10 @@ namespace JUtils.model.hotkeys
         /// If this is false, the first found hotkey will be removed. 
         /// else, every occourance will be removed.
         /// </param>
-        public static void RemoveHotkey(ModifierKeys modifier, Key[] keys, bool removeAllOccourances = false)
+        public static void RemoveHotkey(Key[] keys, bool removeAllOccourances = false)
         {
             List<GlobalHotkey> originalHotkeys = Hotkeys;
-            List<GlobalHotkey> toBeRemoved = FindHotkeys(modifier, keys);
+            List<GlobalHotkey> toBeRemoved = FindHotkeys(keys);
 
             if (toBeRemoved.Count > 0)
             {

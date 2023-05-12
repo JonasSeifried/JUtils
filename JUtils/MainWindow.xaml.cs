@@ -45,9 +45,9 @@ namespace JUtils
             controller.ShutdownHotkeySystemHook();
         }
 
-        private void TextBlock_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void tbMicToggle_KeyDown(object sender, KeyEventArgs e)
         {
-            tbMicToggle.Text = (string)e.NewValue;
+            MessageBox.Show(e.Key.ToString());
         }
     }
 }

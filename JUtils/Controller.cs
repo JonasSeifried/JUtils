@@ -25,7 +25,7 @@ namespace JUtils
         {
             HotkeysManager.SetupSystemHook();
   
-            HotkeysManager.AddHotkey(new GlobalHotkey(ModifierKeys.Control | ModifierKeys.Alt, new Key[2] { Key.S, Key.F }, () => { MicMute.ToggleMic(); }));
+            HotkeysManager.AddHotkey(new GlobalHotkey(new Key[2] { Key.F, Key.LeftShift }, () => { MicMute.ToggleMic(); }));
         }
 
         public List<string> getHotkeysAsStrings()
@@ -47,11 +47,9 @@ namespace JUtils
         public string HotkeyToString(GlobalHotkey hotkey)
         {
             StringBuilder sb = new StringBuilder();
-            if (hotkey.Modifier != ModifierKeys.None)
-                sb.Append(hotkey.Modifier.ToString().Replace(",", " +"));
             foreach(Key key in hotkey.Keys)
             {
-                sb.Append(" + ");
+                if (sb.Length != 0) sb.Append(" + ");
                 sb.Append(key.ToString());
             }
             return sb.ToString();

@@ -14,10 +14,6 @@ namespace JUtils.model.hotkeys
     /// </summary>
     public class GlobalHotkey
     {
-        /// <summary>
-        /// The modifier keys required to be pressed for the hotkey to be 
-        /// </summary>
-        public ModifierKeys Modifier { get; set; }
 
         /// <summary>
         /// The keys required to be pressed for the hotkey to be fired
@@ -52,9 +48,8 @@ namespace JUtils.model.hotkeys
         /// States whether the callback can be run 
         /// (can be changed, see <see cref="CanExecute"/>)
         /// </param>
-        public GlobalHotkey(ModifierKeys modifier, Key[] keys, Action callbackMethod, bool canExecute = true)
+        public GlobalHotkey(Key[] keys, Action callbackMethod, bool canExecute = true)
         {
-            this.Modifier = modifier;
             this.Keys = keys;
             this.Callback = callbackMethod;
             this.CanExecute = canExecute;
