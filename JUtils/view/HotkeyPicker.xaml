@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="JUtils.view.HotkeyPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:JUtils.view"
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="250">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="30"/>
+        </Grid.ColumnDefinitions>
+        <TextBox Name="tbHotkeyPicker" TextChanged="tbHotkeyPicker_TextChanged" FontSize="16" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" TextAlignment="Center" PreviewKeyDown="tbHotkeyPicker_PreviewKeyDown" PreviewKeyUp="tbHotkeyPicker_PreviewKeyUp"/>
+        <TextBlock Name="tbPlaceholder" Text="Enter your Hotkey.." VerticalAlignment="Center" FontSize="16" FontWeight="Light" Margin="10,0,0,0" Foreground="Gray"/>
+        <Button Grid.Column="2"  Content="X" Background="White" Foreground="Gray" BorderThickness="0" Click="btnClear_Click"/>
+    </Grid>
+</UserControl>

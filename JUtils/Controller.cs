@@ -25,7 +25,7 @@ namespace JUtils
         {
             HotkeysManager.SetupSystemHook();
   
-            HotkeysManager.AddHotkey(new GlobalHotkey(new Key[2] { Key.F, Key.LeftShift }, () => { MicMute.ToggleMic(); }));
+            HotkeysManager.AddHotkey(new GlobalHotkey(new Key[2] { Key.F, Key.LeftCtrl }, () => { MicMute.ToggleMic(); }));
         }
 
         public List<string> getHotkeysAsStrings()

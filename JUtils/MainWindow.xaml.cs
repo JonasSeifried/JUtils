@@ -38,16 +38,12 @@ namespace JUtils
         {
             LVhotkeys.Items.Clear();
             controller.getHotkeysAsStrings().ForEach(s => { LVhotkeys.Items.Add(s); });
+            hkp_MicToggle.Keys.ForEach(s =>  LVhotkeys.Items.Add(s));
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) 
         {
             controller.ShutdownHotkeySystemHook();
-        }
-
-        private void tbMicToggle_KeyDown(object sender, KeyEventArgs e)
-        {
-            MessageBox.Show(e.Key.ToString());
         }
     }
 }

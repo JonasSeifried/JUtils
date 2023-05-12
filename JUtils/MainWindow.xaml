@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JUtils"
+        xmlns:view="clr-namespace:JUtils.view"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
@@ -18,7 +19,6 @@
         <TextBlock Name="tbHellow" Text="Hello world"/>
         <ListView Grid.Column="2" Name="LVhotkeys"></ListView>
         <Button Name="btnRun" Width="100" Height="25" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Run" Click="btnRun_Click"/>
-        <TextBox Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Name="tbMicToggle" Width="150" Height="50" KeyDown="tbMicToggle_KeyDown"/>
-
+        <view:HotkeyPicker x:Name="hkp_MicToggle" Grid.Row="2" Width="250" Height="40" VerticalAlignment="Center"/>
     </Grid>
 </Window>
