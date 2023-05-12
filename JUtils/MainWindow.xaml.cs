@@ -1,4 +1,5 @@
 ﻿using JUtils.model;
+using JUtils.model.hotkeys;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -24,15 +25,29 @@ namespace JUtils
     /// </summary>
     public partial class MainWindow : Window
     {
+        Controller controller;
         public MainWindow()
         {
             InitializeComponent();
+
+            controller = new Controller();
         }
+
 
         private void btnRun_Click(object sender, RoutedEventArgs e)
         {
-            MicMute.ToggleMic();
+            LVhotkeys.Items.Clear();
+            controller.getHotkeysAsStrings().ForEach(s => { LVhotkeys.Items.Add(s); });
+        }
 
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) 
+        {
+            controller.ShutdownHotkeySystemHook();
+        }
+
+        private void TextBlock_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            tbMicToggle.Text = (string)e.NewValue;
         }
     }
 }

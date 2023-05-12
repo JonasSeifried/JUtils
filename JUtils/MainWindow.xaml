@@ -7,7 +7,18 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <TextBlock Name="tbHellow" Text="Hello world"/>
+        <ListView Grid.Column="2" Name="LVhotkeys"></ListView>
         <Button Name="btnRun" Width="100" Height="25" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Run" Click="btnRun_Click"/>
+        <TextBlock Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Enter hotkey..." Name="tbMicToggle" DataContextChanged="TextBlock_DataContextChanged"/>
+
     </Grid>
 </Window>

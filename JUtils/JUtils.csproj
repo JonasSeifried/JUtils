@@ -8,11 +8,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Audio\mic_activated.wav" />
+    <None Remove="Resources\Audio\mic_muted.wav" />
+    <None Remove="Resources\mic_activated.wav" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="view\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Audio\mic_muted.wav" />
   </ItemGroup>
 
 </Project>
