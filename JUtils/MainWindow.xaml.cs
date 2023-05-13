@@ -34,11 +34,21 @@ namespace JUtils
         }
 
 
-        private void btnRun_Click(object sender, RoutedEventArgs e)
+        private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            LVhotkeys.Items.Clear();
-            controller.getHotkeysAsStrings().ForEach(s => { LVhotkeys.Items.Add(s); });
-            hkp_MicToggle.Keys.ForEach(s =>  LVhotkeys.Items.Add(s));
+            if (hkp_MicToggle.Valid)
+            {
+                if(hkp_MicToggle.Keys.Count == 0) 
+                {
+                    controller.RemoveHotkey(Controller.Hotkeys.ToggleMic);
+                    MessageBox.Show("Removed Hotkey MicToggle");
+                } else
+                {
+                    controller.AddHotkey(Controller.Hotkeys.ToggleMic, hkp_MicToggle.Keys.ToArray());
+                    MessageBox.Show("Added Hotkey MicToggle: " + controller.HotkeyToString(Controller.Hotkeys.ToggleMic));
+                }
+
+            }
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) 

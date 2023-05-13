@@ -20,15 +20,22 @@ namespace JUtils.view
     /// </summary>
     public partial class HotkeyPicker : UserControl
     {
-        bool hotkeySet = false;
+        
 
         private List<Key> keys = new();
 
         public List<Key> Keys
         {
             get { return keys; }
-            set { keys = value; }
         }
+
+        private bool valid;
+
+        public bool Valid
+        {
+            get { return valid; }
+        }
+
 
         public HotkeyPicker()
         {
@@ -37,9 +44,9 @@ namespace JUtils.view
 
         private void tbHotkeyPicker_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if(hotkeySet)
+            if(valid)
             {
-                hotkeySet = false;
+                valid = false;
                 tbHotkeyPicker.Text = string.Empty;
                 keys.Clear();
             }
@@ -57,13 +64,13 @@ namespace JUtils.view
 
         private void tbHotkeyPicker_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            hotkeySet = true;
+            valid = true;
         }
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             tbHotkeyPicker.Clear();
-            hotkeySet = false;
+            valid = true;
             keys.Clear();
             tbHotkeyPicker.Focus();
         }

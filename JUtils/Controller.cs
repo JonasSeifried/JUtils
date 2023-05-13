@@ -16,7 +16,7 @@ namespace JUtils
             ToggleMic,
         }
 
-        public Dictionary<Hotkeys, string> HotkeyDict { get; private set; } = new Dictionary<Hotkeys, string>();
+        public Dictionary<Hotkeys, GlobalHotkey> HotkeyDict { get; private set; } = new ();
         public Controller() 
         {
             initHotkeys();
@@ -24,11 +24,32 @@ namespace JUtils
         private void initHotkeys()
         {
             HotkeysManager.SetupSystemHook();
-  
-            HotkeysManager.AddHotkey(new GlobalHotkey(new Key[2] { Key.F, Key.LeftCtrl }, () => { MicMute.ToggleMic(); }));
         }
 
-        public List<string> getHotkeysAsStrings()
+        private GlobalHotkey? getHotkey(Hotkeys hotkey)
+        {
+            if (HotkeyDict.ContainsKey(hotkey)) return HotkeyDict[hotkey];
+            return null;
+        }
+
+        public void AddHotkey(Hotkeys hotkey, Key[] keys)
+        {
+            if(getHotkey(hotkey) != null) 
+                HotkeysManager.RemoveHotkey(HotkeyDict[hotkey]);
+
+
+            Action callBack;
+            switch (hotkey)
+            {
+                case Hotkeys.ToggleMic: callBack = () => MicMute.ToggleMic(); break;
+                default: return;
+            }
+            GlobalHotkey ghk = new GlobalHotkey(keys, callBack);
+            HotkeysManager.AddHotkey(ghk);
+            HotkeyDict[Hotkeys.ToggleMic] = ghk;
+        }
+
+        public List<string> GetHotkeysAsStrings()
         {
             List<string> s = new List<string>();
             foreach (GlobalHotkey hotkey in  HotkeysManager.Hotkeys)
@@ -46,6 +67,7 @@ namespace JUtils
 
         public string HotkeyToString(GlobalHotkey hotkey)
         {
+            if (hotkey == null) return "null";
             StringBuilder sb = new StringBuilder();
             foreach(Key key in hotkey.Keys)
             {
@@ -53,6 +75,17 @@ namespace JUtils
                 sb.Append(key.ToString());
             }
             return sb.ToString();
+        }
+
+        public string HotkeyToString(Hotkeys hotkey) => HotkeyToString(HotkeyDict[hotkey]);
+
+
+        public bool RemoveHotkey(Hotkeys hotkey)
+        {
+            GlobalHotkey? ghtk = getHotkey(hotkey);
+            if (ghtk != null && HotkeyDict.Remove(hotkey))
+                return HotkeysManager.RemoveHotkey(ghtk);
+            return false;
         }
     }
 }

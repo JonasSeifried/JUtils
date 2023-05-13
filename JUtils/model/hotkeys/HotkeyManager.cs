@@ -92,9 +92,9 @@ namespace JUtils.model.hotkeys
         /// Removes a hotkey from the hotkeys list.
         /// </summary>
         /// <param name="hotkey"></param>
-        public static void RemoveHotkey(GlobalHotkey hotkey)
+        public static bool RemoveHotkey(GlobalHotkey hotkey)
         {
-            Hotkeys.Remove(hotkey);
+            return Hotkeys.Remove(hotkey);
         }
 
         /// <summary>

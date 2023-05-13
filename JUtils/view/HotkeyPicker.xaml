@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:JUtils.view"
              mc:Ignorable="d" 
              d:DesignHeight="40" d:DesignWidth="250">
+    <Border BorderThickness="1" BorderBrush="Gray">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -15,4 +16,5 @@
         <TextBlock Name="tbPlaceholder" Text="Enter your Hotkey.." VerticalAlignment="Center" FontSize="16" FontWeight="Light" Margin="10,0,0,0" Foreground="Gray"/>
         <Button Grid.Column="2"  Content="X" Background="White" Foreground="Gray" BorderThickness="0" Click="btnClear_Click"/>
     </Grid>
+    </Border>
 </UserControl>
