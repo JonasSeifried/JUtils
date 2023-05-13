@@ -9,15 +9,21 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="80" />
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="65"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Name="tbHellow" Text="Hello world"/>
-        <Button Name="btnSave" Width="100" Height="25" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Run" Click="btnSave_Click"/>
-        <view:HotkeyPicker x:Name="hkp_MicToggle" Grid.Row="0" Width="250" Height="40" VerticalAlignment="Center"/>
+        <Border Grid.RowSpan="3" BorderThickness="1" BorderBrush="Black">
+            
+        </Border>
+        <TextBlock Text="MicToggle" Grid.Column="1" FontSize="32" VerticalAlignment="Center" Margin="20,0,0,20"/>
+        <TextBlock Grid.Column="1" FontSize="16" Text="A Hotkey to toggle mute your Mic. Windows wide!" VerticalAlignment="Bottom" Margin="20,0,0,5"/>
+        <Separator Grid.Column="1" VerticalAlignment="Bottom"/>
+        <view:HotkeyPicker x:Name="hkp_MicToggle" Grid.Row="1" Grid.Column="1" Width="250" Height="40" VerticalAlignment="Center"/>
+        <Button Name="btnSave" Width="100" Height="25" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Run" Click="btnSave_Click"/>
     </Grid>
 </Window>
