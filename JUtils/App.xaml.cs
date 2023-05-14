@@ -28,6 +28,8 @@ namespace JUtils
 
             setupSystemTray();
 
+            Controller.Instance.RestoreHotkeys();
+
             base.OnStartup(e);
         }
 
@@ -57,6 +59,7 @@ namespace JUtils
 
         protected override void OnExit(ExitEventArgs e)
         {
+            Controller.Instance.StoreHotkeys();
             _notifyIcon.Dispose();
             base.OnExit(e);
         }

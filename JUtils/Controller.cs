@@ -10,22 +10,32 @@ using System.Windows.Input;
 
 namespace JUtils
 {
-    public class Controller
+    public sealed class Controller
     {
         public enum Hotkeys
         {
-            ToggleMic,
+            MicToggle,
         }
 
-        public Dictionary<Hotkeys, GlobalHotkey> HotkeyDict { get; private set; } = new ();
+        public static Dictionary<Hotkeys, GlobalHotkey> HotkeyDict { get; private set; } = new();
 
         public static Dictionary<Key, string> PrettyKeys { get; private set; } = new();
 
-        public Controller() 
+        public Controller()
         {
             InitHotkeys();
             PopulatePrettyKeys();
         }
+
+        private static readonly Lazy<Controller> lazy = new Lazy<Controller>(() => new Controller());
+        public static Controller Instance
+        {
+            get
+            {
+                return lazy.Value;
+            }
+        }
+
 
         private void InitHotkeys()
         {
@@ -50,25 +60,25 @@ namespace JUtils
 
         public void AddHotkey(Hotkeys hotkey, Key[] keys)
         {
-            if(getHotkey(hotkey) != null) 
+            if (getHotkey(hotkey) != null)
                 HotkeysManager.RemoveHotkey(HotkeyDict[hotkey]);
 
 
             Action callBack;
             switch (hotkey)
             {
-                case Hotkeys.ToggleMic: callBack = () => MicMute.ToggleMic(); break;
+                case Hotkeys.MicToggle: callBack = () => MicMute.ToggleMic(); break;
                 default: return;
             }
             GlobalHotkey ghk = new GlobalHotkey(keys, callBack);
             HotkeysManager.AddHotkey(ghk);
-            HotkeyDict[Hotkeys.ToggleMic] = ghk;
+            HotkeyDict[Hotkeys.MicToggle] = ghk;
         }
 
         public List<string> GetHotkeysAsStrings()
         {
             List<string> s = new List<string>();
-            foreach (GlobalHotkey hotkey in  HotkeysManager.Hotkeys)
+            foreach (GlobalHotkey hotkey in HotkeysManager.Hotkeys)
             {
                 s.Add(HotkeyToString(hotkey));
             }
@@ -85,7 +95,7 @@ namespace JUtils
         {
             if (hotkey == null) return "null";
             StringBuilder sb = new StringBuilder();
-            foreach(Key key in hotkey.Keys)
+            foreach (Key key in hotkey.Keys)
             {
                 if (sb.Length != 0) sb.Append(" + ");
                 sb.Append(key.ToString());
@@ -102,6 +112,28 @@ namespace JUtils
             if (ghtk != null && HotkeyDict.Remove(hotkey))
                 return HotkeysManager.RemoveHotkey(ghtk);
             return false;
+        }
+
+        public void RestoreHotkeys()
+        {
+            foreach (Hotkeys hotkey in Enum.GetValues(typeof(Hotkeys)))
+            {
+
+                object keysAsObject = Properties.Settings.Default[hotkey.ToString()];
+                Key[] keys = (Key[]) keysAsObject;
+                if(keys == null) continue;
+                AddHotkey(hotkey, keys);
+            }
+        }
+
+        public void StoreHotkeys()
+        {
+            foreach (Hotkeys hotkey in Enum.GetValues(typeof(Hotkeys)))
+            {
+                if (!HotkeyDict.ContainsKey(hotkey) || HotkeyDict[hotkey] == null) continue;
+                Properties.Settings.Default[hotkey.ToString()] = HotkeyDict[hotkey].Keys;
+            }
+            Properties.Settings.Default.Save();
         }
     }
 }

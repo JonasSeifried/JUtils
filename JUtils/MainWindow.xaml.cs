@@ -11,12 +11,12 @@ namespace JUtils
     /// </summary>
     public partial class MainWindow : Window
     {
-        Controller controller;
+        public Controller Controller { get; private set; }
         public MainWindow()
         {
             InitializeComponent();
 
-            controller = new Controller();
+            Controller = new Controller();
         }
 
 
@@ -26,12 +26,12 @@ namespace JUtils
             {
                 if(hkp_MicToggle.Keys.Count == 0) 
                 {
-                    controller.RemoveHotkey(Controller.Hotkeys.ToggleMic);
+                    Controller.RemoveHotkey(Controller.Hotkeys.MicToggle);
                     MessageBox.Show("Removed Hotkey MicToggle");
                 } else
                 {
-                    controller.AddHotkey(Controller.Hotkeys.ToggleMic, hkp_MicToggle.Keys.ToArray());
-                    MessageBox.Show("Added Hotkey MicToggle: " + controller.HotkeyToString(Controller.Hotkeys.ToggleMic));
+                    Controller.AddHotkey(Controller.Hotkeys.MicToggle, hkp_MicToggle.Keys.ToArray());
+                    MessageBox.Show("Added Hotkey MicToggle: " + Controller.HotkeyToString(Controller.Hotkeys.MicToggle));
                 }
 
             }
@@ -39,7 +39,7 @@ namespace JUtils
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) 
         {
-            controller.ShutdownHotkeySystemHook();
+            Controller.ShutdownHotkeySystemHook();
         }
 
         // Minimize to system tray when application is minimized.
