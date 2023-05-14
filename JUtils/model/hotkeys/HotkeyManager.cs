@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -102,22 +103,23 @@ namespace JUtils.model.hotkeys
         /// Hotkey and matches their Modifier/Key. If they both match, and the hotkey allows
         /// the callback method to be called, it is called.
         /// </summary>
-        private static void CheckHotkeys()  
+        private static bool CheckHotkeys()  
         {
             foreach (GlobalHotkey hotkey in Hotkeys)
             {
                 if (!hotkey.pressed)
                 {
+                    bool allPressed = true;
                     foreach (Key key in hotkey.Keys)
                     {
-                        if (!Keyboard.IsKeyDown(key)) return;
+                        if (!Keyboard.IsKeyDown(key)) allPressed = false;
                     }
-                    if (hotkey.CanExecute)
+                    if (allPressed && hotkey.CanExecute)
                     {
                         hotkey.pressed = true;
                         hotkey.Callback?.Invoke();
                         HotkeyFired?.Invoke(hotkey);
-                        return;
+                        return true;
                     }
                 } 
                 else if (hotkey.pressed)
@@ -127,12 +129,13 @@ namespace JUtils.model.hotkeys
                         if (Keyboard.IsKeyUp(key))
                         {
                             hotkey.pressed = false;
-                            return;
+                            break;
+  
                         }
                     }
                 }
-
             }
+            return false;
         }
 
         /// <summary>
@@ -227,10 +230,11 @@ namespace JUtils.model.hotkeys
         /// <returns>LRESULT</returns>
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            // Checks if this is called from keydown only because key ups aren't used.
+            // Checks if this is called from keydown only because gkey ups aren't used.
             if (nCode >= 0)
             {
                 CheckHotkeys();
+ 
 
                 // Cannot use System.Windows' keys because
                 // they dont use the same values as windows

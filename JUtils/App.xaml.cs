@@ -24,7 +24,7 @@ namespace JUtils
         protected override void OnStartup(StartupEventArgs e)
         {
             MainWindow = new MainWindow();
-            //MainWindow.Show();
+            MainWindow.Show();
 
             setupSystemTray();
 
