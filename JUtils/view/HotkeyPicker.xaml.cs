@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,7 +45,12 @@ namespace JUtils.view
 
         private void tbHotkeyPicker_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if(valid)
+
+            //Because for leftAlt and f10 e.Key equals Key.System. But e.SystemKey then gives the right Key
+            Key key = (e.Key == Key.System ? e.SystemKey : e.Key);
+            string keyString = Controller.PrettyKeys[key];
+
+            if (valid)
             {
                 valid = false;
                 tbHotkeyPicker.Text = string.Empty;
@@ -54,10 +60,10 @@ namespace JUtils.view
             {
                 e.Handled = true;
                 return;
-            }
-            if (string.IsNullOrEmpty(tbHotkeyPicker.Text)) tbHotkeyPicker.Text = e.Key.ToString();
-            else tbHotkeyPicker.Text = tbHotkeyPicker.Text + " + " + e.Key.ToString();
-            keys.Add(e.Key);
+            }      
+            if (string.IsNullOrEmpty(tbHotkeyPicker.Text)) tbHotkeyPicker.Text = keyString;
+            else tbHotkeyPicker.Text = tbHotkeyPicker.Text + " + " + keyString;
+            keys.Add(key);
             
             e.Handled = true;
         }

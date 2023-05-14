@@ -21,4 +21,19 @@
     <Resource Include="Resources\Audio\mic_muted.wav" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Resources\KeyNamesGER.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>KeyNamesGER.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\KeyNamesGER.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>KeyNamesGER.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,6 @@
 ﻿using JUtils.model;
 using JUtils.model.hotkeys;
+using JUtils.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +18,16 @@ namespace JUtils
         }
 
         public Dictionary<Hotkeys, GlobalHotkey> HotkeyDict { get; private set; } = new ();
+
+        public static Dictionary<Key, string> PrettyKeys { get; private set; } = new();
+
         public Controller() 
         {
-            initHotkeys();
+            InitHotkeys();
+            PopulatePrettyKeys();
         }
-        private void initHotkeys()
+
+        private void InitHotkeys()
         {
             HotkeysManager.SetupSystemHook();
         }
@@ -30,6 +36,16 @@ namespace JUtils
         {
             if (HotkeyDict.ContainsKey(hotkey)) return HotkeyDict[hotkey];
             return null;
+        }
+
+        public static void PopulatePrettyKeys()
+        {
+            foreach (Key key in Enum.GetValues(typeof(Key)))
+            {
+                string? keyName = KeyNamesGER.ResourceManager.GetString(key.ToString());
+                keyName = (keyName == null) ? key.ToString() : keyName;
+                PrettyKeys[key] = keyName;
+            }
         }
 
         public void AddHotkey(Hotkeys hotkey, Key[] keys)
