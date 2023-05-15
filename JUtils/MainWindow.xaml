@@ -12,23 +12,25 @@
         <WindowChrome GlassFrameThickness="0" CornerRadius="17" CaptionHeight="0" />
     </WindowChrome.WindowChrome>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="80" />
-            <RowDefinition />
-            <RowDefinition />
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="65"/>
-            <ColumnDefinition Width="724*"/>
+            <ColumnDefinition Width="0.15625*"/>
+            <ColumnDefinition Width="0.84375*"/>
         </Grid.ColumnDefinitions>
         <view:TitleBar Grid.ColumnSpan="2" Height="30" VerticalAlignment="Top" Panel.ZIndex="1"/>
-        <Border Grid.Row="0" Grid.RowSpan="3" BorderThickness="0,0,1,0" BorderBrush="Gray">
-
-        </Border>
-        <TextBlock Text="MicToggle" Grid.Column="1" Grid.Row="0" FontSize="32" VerticalAlignment="Top" Margin="20,9,0,0" Grid.ColumnSpan="2"/>
+        <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="#222222"/>
+        <view:SideBar Grid.Column="0" />
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80"/>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" CornerRadius="15,0,0,15" BorderThickness="1" Background="White" />
+            <TextBlock Text="MicToggle" Grid.Column="1" Grid.Row="0" FontSize="32" VerticalAlignment="Top" Margin="20,9,0,0" Grid.ColumnSpan="2"/>
         <TextBlock Grid.Column="1" Grid.Row="0"  FontSize="16" Text="A Hotkey to toggle mute your Mic. Windows wide!" VerticalAlignment="Bottom" Margin="20,0,0,5" Grid.ColumnSpan="2"/>
         <Separator Grid.Column="1" Grid.Row="0"  VerticalAlignment="Bottom" Grid.ColumnSpan="2" Margin="0,0,0,2"/>
         <view:HotkeyPicker x:Name="hkp_MicToggle" Grid.Row="1" Grid.Column="1" Width="250" Height="40" VerticalAlignment="Center" Margin="243,0,231,0"/>
         <Button Name="btnSave" Width="100" Height="25" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Run" Click="btnSave_Click" Margin="317,0,0,0"/>
+        </Grid>
     </Grid>
 </Window>

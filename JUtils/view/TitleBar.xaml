@@ -10,8 +10,17 @@
     <Grid>
         <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="btnMaximize" Content="⏹️" Width="30" FontSize="15"  Height="30" Background="Transparent" BorderBrush="Transparent" Click="btnMaximize_Click"/>
-            <Button x:Name="btnMinimize" Content="-" Width="30" FontSize="15"  Height="30" Background="Transparent" BorderBrush="Transparent" Click="btnMinimize_Click"/>
+            <Grid >
+            <Button x:Name="BtnMaximize" Width="30" FontSize="15"  Height="30" BorderBrush="#A0A0A0" Background="White" HorizontalAlignment="Center" VerticalContentAlignment="Center" BorderThickness="1,0,0,1" Click="btnMaximize_Click">
+                <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="0,0 0 12" />
+                        </Style>
+                    </Button.Resources>
+                </Button>
+                <Border Width="10" Height="10" BorderThickness="1" BorderBrush="#222222"/>
+            </Grid>
+                <Button x:Name="BtnMinimize" Content="-" Width="30" FontSize="15"  Height="30" Background="White" Foreground="#222222" BorderBrush="#A0A0A0" BorderThickness="0,0,0,1" Click="btnMinimize_Click"/>
         </StackPanel>
     </Grid>
 </UserControl>
