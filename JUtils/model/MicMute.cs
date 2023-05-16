@@ -8,8 +8,8 @@ namespace JUtils.model
         private static WaveOutEvent? _outputDevice;
         static AudioFileReader? _audioFile;
         private static bool MicMuted { get; set; }
-        private const string SoundMicActivated = "C:\\Users\\Jonas\\Documents\\Github\\JUtils\\JUtils\\mic_activated.wav";
-        private const string SoundMicMuted = "C:\\Users\\Jonas\\Documents\\Github\\JUtils\\JUtils\\mic_muted.wav";
+        private const string SoundMicActivated = @"Resources/Audio/mic_activated.wav";
+        private const string SoundMicMuted = "Resources/Audio/mic_muted.wav";
 
 
         public static void ToggleMic()

@@ -9,17 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\Audio\mic_activated.wav" />
-    <None Remove="Resources\Audio\mic_muted.wav" />
     <None Remove="Resources\mic_activated.wav" />
+    <None Update="Resources\Audio\mic_muted.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Audio\mic_activated.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\Audio\mic_muted.wav" />
   </ItemGroup>
 
   <ItemGroup>
