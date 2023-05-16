@@ -17,12 +17,13 @@ namespace JUtils
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            Controller.Instance.RestoreHotkeys();
+            
             MainWindow = new MainWindow();
             MainWindow.Show();
 
             SetupSystemTray();
 
-            Controller.Instance.RestoreHotkeys();
 
             base.OnStartup(e);
         }

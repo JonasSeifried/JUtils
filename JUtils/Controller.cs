@@ -61,9 +61,9 @@ namespace JUtils
                 case Hotkeys.MicToggle: callBack = MicMute.ToggleMic; break;
                 default: return;
             }
-            GlobalHotkey ghk = new GlobalHotkey(keys, callBack);
-            HotkeysManager.AddHotkey(ghk);
-            HotkeyDict[Hotkeys.MicToggle] = ghk;
+            GlobalHotkey globalHotkey = new GlobalHotkey(keys, callBack);
+            HotkeysManager.AddHotkey(globalHotkey);
+            HotkeyDict[hotkey] = globalHotkey;
         }
 
         public List<string> GetHotkeysAsStrings()
@@ -93,9 +93,10 @@ namespace JUtils
             return sb.ToString();
         }
 
-        public string HotkeyToString(Hotkeys hotkey) => HotkeyToString(HotkeyDict[hotkey]);
-
-
+        public string HotkeyToString(Hotkeys hotkey) =>
+            HotkeyDict.ContainsKey(hotkey)
+                ? HotkeyToString(HotkeyDict[hotkey])
+                : "None";
         public bool RemoveHotkey(Hotkeys hotkey)
         {
             GlobalHotkey? gHk = GetHotkey(hotkey);
@@ -111,7 +112,7 @@ namespace JUtils
 
                 object keysAsObject = Properties.Settings.Default[hotkey.ToString()];
                 Key[] keys = (Key[]) keysAsObject;
-                if(keys == null) continue;
+                if (keys == null) continue;
                 AddHotkey(hotkey, keys);
             }
         }

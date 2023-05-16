@@ -37,8 +37,17 @@
                 
                 <TextBlock Grid.Row="0" Text="MicToggle" FontSize="32" VerticalAlignment="Top"/>
                 <TextBlock Grid.Row="0" FontSize="16" Text="A Hotkey to toggle mute your Mic. Windows wide!" VerticalAlignment="Bottom"/>
-            
-                <view:HotkeyPicker x:Name="HkpMicToggle" Grid.Row="1" Width="250" MinHeight="30" Height="Auto" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="50*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Name="TbCurrently" Grid.Row="0" Text="Currently: Shift + A" VerticalAlignment="Bottom"/>
+                    <view:HotkeyPicker x:Name="HkpMicToggle" Grid.Row="1" Width="250" MinHeight="30" Height="Auto" HorizontalAlignment="Left" Margin="0,10"/>
+                    <TextBlock Name="TbMsg" Grid.Row="2" Text="Currently: Shift + A" Visibility="Hidden" VerticalAlignment="Top"/>
+                </Grid>
                 
             </Grid>
             
