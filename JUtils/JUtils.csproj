@@ -11,6 +11,12 @@
 
   <ItemGroup>
     <None Remove="Resources\mic_activated.wav" />
+    <None Update="Resources\Audio\mic_activated.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Audio\mic_muted.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -45,17 +51,6 @@
     <None Update="Resources\SystemTrayIcon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Resources\Audio\mic_activated.wav" />
-    <Resource Include="Resources\Audio\mic_activated.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <None Remove="Resources\Audio\mic_muted.wav" />
-    <Resource Include="Resources\Audio\mic_muted.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
   </ItemGroup>
 
 </Project>
