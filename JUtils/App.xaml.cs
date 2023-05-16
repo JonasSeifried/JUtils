@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using Forms = System.Windows.Forms;
 
 namespace JUtils
@@ -12,7 +6,7 @@ namespace JUtils
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
         private readonly Forms.NotifyIcon _notifyIcon;
 
@@ -26,26 +20,27 @@ namespace JUtils
             MainWindow = new MainWindow();
             MainWindow.Show();
 
-            setupSystemTray();
+            SetupSystemTray();
 
             Controller.Instance.RestoreHotkeys();
 
             base.OnStartup(e);
         }
 
-        private void setupSystemTray()
+        private void SetupSystemTray()
         {
             _notifyIcon.Icon = new System.Drawing.Icon("Resources/SystemTrayIcon.ico");
-            _notifyIcon.Text = "JUtils";
+            _notifyIcon.Text = @"JUtils";
             _notifyIcon.MouseClick += _notifyIcon_MouseClick;
             _notifyIcon.ContextMenuStrip = new Forms.ContextMenuStrip();
-            _notifyIcon.ContextMenuStrip.Items.Add("Open", null, (object? sender, EventArgs e) => openMainWindow());
-            _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, (object? sender, EventArgs e) => Shutdown());
+            _notifyIcon.ContextMenuStrip.Items.Add("Open", null, (_, _) => OpenMainWindow());
+            _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, (_, _) => Shutdown());
             _notifyIcon.Visible = true;
         }
 
-        private void openMainWindow()
+        private void OpenMainWindow()
         {
+            MainWindow ??= new MainWindow();
             MainWindow.WindowState = WindowState.Normal;
             MainWindow.Show();
             MainWindow.Activate();
@@ -54,12 +49,13 @@ namespace JUtils
         private void _notifyIcon_MouseClick(object? sender, Forms.MouseEventArgs e)
         {
             if (e.Button == Forms.MouseButtons.Right) return;
-            openMainWindow();
+            OpenMainWindow();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             Controller.Instance.StoreHotkeys();
+            Controller.Instance.ShutdownHotkeySystemHook();
             _notifyIcon.Dispose();
             base.OnExit(e);
         }

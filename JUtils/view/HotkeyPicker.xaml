@@ -5,16 +5,40 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:JUtils.view"
              mc:Ignorable="d" 
-             d:DesignHeight="40" d:DesignWidth="250">
-    <Border BorderThickness="1" BorderBrush="Gray">
+
+             d:DesignWidth="250" d:DesignHeight="30">
+    <Border Background="White" BorderThickness="1" BorderBrush="#A0A0A0" CornerRadius="15">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="70"/>
         </Grid.ColumnDefinitions>
-        <TextBox Name="tbHotkeyPicker" TextChanged="tbHotkeyPicker_TextChanged" FontSize="16" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" TextAlignment="Center" PreviewKeyDown="tbHotkeyPicker_PreviewKeyDown" PreviewKeyUp="tbHotkeyPicker_PreviewKeyUp"/>
-        <TextBlock Name="tbPlaceholder" Text="Enter your Hotkey.." VerticalAlignment="Center" FontSize="16" FontWeight="Light" Margin="10,0,0,0" Foreground="Gray"/>
-        <Button Grid.Column="2"  Content="X" Background="White" Foreground="Gray" BorderThickness="0" Click="btnClear_Click"/>
+        <TextBox Name="TbHotkeyPicker" Grid.Column="0" TextChanged="TbHotkeyPicker_TextChanged" FontSize="16"
+                 TextWrapping="Wrap" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 VerticalContentAlignment="Center" TextAlignment="Center"
+                 PreviewKeyDown="TbHotkeyPicker_PreviewKeyDown" PreviewKeyUp="TbHotkeyPicker_PreviewKeyUp">
+            <TextBox.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="15"/>
+                </Style>
+            </TextBox.Resources>
+        </TextBox>
+        <TextBlock Grid.Column="0" Name="TbPlaceholder" Text="Enter your Hotkey.." IsHitTestVisible="False"
+                   VerticalAlignment="Center" FontSize="16" FontWeight="Light" Margin="10,0,0,0" Foreground="Gray">
+            <TextBlock.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="15"/>
+                </Style>
+            </TextBlock.Resources>
+        </TextBlock>
+        <Button Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="Clear"
+                Background="#0085FF" Foreground="#222222" BorderThickness="0" Click="BtnClear_Click">
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="15" />
+                </Style>
+            </Button.Resources>
+        </Button>
     </Grid>
     </Border>
 </UserControl>

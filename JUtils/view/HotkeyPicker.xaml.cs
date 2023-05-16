@@ -1,41 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace JUtils.view
 {
     /// <summary>
     /// Interaction logic for HotkeyPicker.xaml
     /// </summary>
-    public partial class HotkeyPicker : UserControl
+    public partial class HotkeyPicker
     {
-        
+        public List<Key> Keys { get; } = new();
 
-        private List<Key> keys = new();
-
-        public List<Key> Keys
-        {
-            get { return keys; }
-        }
-
-        private bool valid;
-
-        public bool Valid
-        {
-            get { return valid; }
-        }
+        public bool Valid { get; private set; }
 
 
         public HotkeyPicker()
@@ -43,48 +20,46 @@ namespace JUtils.view
             InitializeComponent();
         }
 
-        private void tbHotkeyPicker_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void TbHotkeyPicker_PreviewKeyDown(object sender, KeyEventArgs e)
         {
 
             //Because for leftAlt and f10 e.Key equals Key.System. But e.SystemKey then gives the right Key
             Key key = (e.Key == Key.System ? e.SystemKey : e.Key);
             string keyString = Controller.PrettyKeys[key];
 
-            if (valid)
+            if (Valid)
             {
-                valid = false;
-                tbHotkeyPicker.Text = string.Empty;
-                keys.Clear();
+                Valid = false;
+                TbHotkeyPicker.Text = string.Empty;
+                Keys.Clear();
             }
-            if (keys.Contains(e.Key))
+            if (Keys.Contains(e.Key))
             {
                 e.Handled = true;
                 return;
             }      
-            if (string.IsNullOrEmpty(tbHotkeyPicker.Text)) tbHotkeyPicker.Text = keyString;
-            else tbHotkeyPicker.Text = tbHotkeyPicker.Text + " + " + keyString;
-            keys.Add(key);
+            if (string.IsNullOrEmpty(TbHotkeyPicker.Text)) TbHotkeyPicker.Text = keyString;
+            else TbHotkeyPicker.Text = TbHotkeyPicker.Text + " + " + keyString;
+            Keys.Add(key);
             
             e.Handled = true;
         }
 
-        private void tbHotkeyPicker_PreviewKeyUp(object sender, KeyEventArgs e)
+        private void TbHotkeyPicker_PreviewKeyUp(object sender, KeyEventArgs e) => Valid = true;
+
+        private void BtnClear_Click(object sender, RoutedEventArgs e)
         {
-            valid = true;
+            TbHotkeyPicker.Clear();
+            Valid = true;
+            Keys.Clear();
+            TbHotkeyPicker.Focus();
         }
 
-        private void btnClear_Click(object sender, RoutedEventArgs e)
+        private void TbHotkeyPicker_TextChanged(object sender, TextChangedEventArgs e)
         {
-            tbHotkeyPicker.Clear();
-            valid = true;
-            keys.Clear();
-            tbHotkeyPicker.Focus();
-        }
-
-        private void tbHotkeyPicker_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (string.IsNullOrEmpty(tbHotkeyPicker.Text)) tbPlaceholder.Visibility = Visibility.Visible;
-            else tbPlaceholder.Visibility = Visibility.Hidden;
+            TbPlaceholder.Visibility = string.IsNullOrEmpty(TbHotkeyPicker.Text)
+                ? Visibility.Visible
+                : Visibility.Hidden;
         }
     }
 }

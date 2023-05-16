@@ -1,22 +1,15 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Interop;
 
 namespace JUtils.model
 {
-    internal class MicMute
+    public static class MicMute
     {
-        static WaveOutEvent? outputDevice;
-        static AudioFileReader? audioFile;
-        public static bool MicMuted { get; private set; }
-        const string MIC_ACTIVATED = "C:\\Users\\Jonas\\Documents\\Github\\JUtils\\JUtils\\mic_activated.wav";
-        const string MIC_MUTED = "C:\\Users\\Jonas\\Documents\\Github\\JUtils\\JUtils\\mic_muted.wav";
+        private static WaveOutEvent? _outputDevice;
+        static AudioFileReader? _audioFile;
+        private static bool MicMuted { get; set; }
+        private const string SoundMicActivated = "C:\\Users\\Jonas\\Documents\\Github\\JUtils\\JUtils\\mic_activated.wav";
+        private const string SoundMicMuted = "C:\\Users\\Jonas\\Documents\\Github\\JUtils\\JUtils\\mic_muted.wav";
 
 
         public static void ToggleMic()
@@ -26,29 +19,23 @@ namespace JUtils.model
             MMDevice commDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
             commDevice.AudioEndpointVolume.Mute = MicMuted;
             
-            if (outputDevice != null)
+            if (_outputDevice != null)
             {
-                outputDevice?.Dispose();
-                outputDevice = null;
+                _outputDevice.Dispose();
+                _outputDevice = null;
             }
-            if(audioFile != null)
+            if(_audioFile != null)
             {
-                audioFile?.Dispose();
-                audioFile = null;
+                _audioFile.Dispose();
+                _audioFile = null;
             }
-            outputDevice = new WaveOutEvent();
-            outputDevice.PlaybackStopped += OnPlaybackStopped;
+            _outputDevice = new WaveOutEvent();
+            _outputDevice.PlaybackStopped += OnPlaybackStopped;
 
-            if(MicMuted)
-            {
-            audioFile = new AudioFileReader(MIC_MUTED);
-            } else
-            {
-                audioFile = new AudioFileReader(MIC_ACTIVATED);
-            }
-            outputDevice.Init(audioFile);
+            _audioFile = MicMuted ? new AudioFileReader(SoundMicMuted) : new AudioFileReader(SoundMicActivated);
+            _outputDevice.Init(_audioFile);
             
-            outputDevice.Play();
+            _outputDevice.Play();
 
         }
 

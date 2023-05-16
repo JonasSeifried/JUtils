@@ -2,46 +2,37 @@
 using System;
 
 using System.Windows;
-using System.Windows.Input;
 
 namespace JUtils
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
-        public Controller Controller { get; private set; }
         public MainWindow()
         {
             InitializeComponent();
-
-            Controller = new Controller();
+            
         }
 
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            if (hkp_MicToggle.Valid)
+            if (HkpMicToggle.Valid)
             {
-                if(hkp_MicToggle.Keys.Count == 0) 
+                if(HkpMicToggle.Keys.Count == 0) 
                 {
-                    Controller.RemoveHotkey(Controller.Hotkeys.MicToggle);
+                    Controller.Instance.RemoveHotkey(Controller.Hotkeys.MicToggle);
                     MessageBox.Show("Removed Hotkey MicToggle");
                 } else
                 {
-                    Controller.AddHotkey(Controller.Hotkeys.MicToggle, hkp_MicToggle.Keys.ToArray());
-                    MessageBox.Show("Added Hotkey MicToggle: " + Controller.HotkeyToString(Controller.Hotkeys.MicToggle));
+                    Controller.Instance.AddHotkey(Controller.Hotkeys.MicToggle, HkpMicToggle.Keys.ToArray());
+                    MessageBox.Show("Added Hotkey MicToggle: " + Controller.Instance.HotkeyToString(Controller.Hotkeys.MicToggle));
                 }
 
             }
         }
-
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) 
-        {
-            Controller.ShutdownHotkeySystemHook();
-        }
-
         // Minimize to system tray when application is minimized.
         protected override void OnStateChanged(EventArgs e)
         {

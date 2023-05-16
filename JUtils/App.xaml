@@ -1,8 +1,7 @@
 ﻿<Application x:Class="JUtils.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:JUtils"
-             >
+>
     <Application.Resources>
          
     </Application.Resources>

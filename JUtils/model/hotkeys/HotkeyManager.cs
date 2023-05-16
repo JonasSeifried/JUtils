@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace JUtils.model.hotkeys
@@ -21,30 +16,20 @@ namespace JUtils.model.hotkeys
 
         public delegate void HotkeyEvent(GlobalHotkey hotkey);
 
-        /// <summary>
-        /// Fired when a hotkey is fired (duh lol).
-        /// </summary>
-        public static event HotkeyEvent HotkeyFired;
-
         // Callbacks
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
-        private static LowLevelKeyboardProc LowLevelProc = HookCallback;
+        private static readonly LowLevelKeyboardProc LowLevelProc = HookCallback;
 
         // All of the Hotkeys
-        public static List<GlobalHotkey> Hotkeys { get; private set; }
+        public static List<GlobalHotkey> Hotkeys { get; private set; } = new();
 
         // The build in proc ID for telling windows to hook onto the
         // low level keyboard events with the SetWindowsHookEx function
-        private const int WH_KEYBOARD_LL = 13;
+        private const int WhKeyboardLl = 13;
 
         // The system hook ID (for storing this application's hook)
-        private static IntPtr HookID = IntPtr.Zero;
-
-        /// <summary>
-        /// States whether the system keyboard event hook is setup. 
-        /// </summary>
-        public static bool IsHookSetup { get; private set; }
+        private static IntPtr _hookId = IntPtr.Zero;
 
         /// <summary>
         /// States whether hotkeys require modifier keys to be scanned (and therefore
@@ -58,18 +43,12 @@ namespace JUtils.model.hotkeys
         /// </summary>
         public static bool RequiresModifierKey { get; set; }
 
-        static HotkeysManager()
-        {
-            Hotkeys = new List<GlobalHotkey>();
-        }
-
         /// <summary>
         /// Hooks/Sets up this application for receiving keydown callbacks
         /// </summary>
         public static void SetupSystemHook(bool requireMod = true)
         {
-            HookID = SetHook(LowLevelProc);
-            IsHookSetup = true;
+            _hookId = SetHook(LowLevelProc);
         }
 
         /// <summary>
@@ -77,8 +56,7 @@ namespace JUtils.model.hotkeys
         /// </summary>
         public static void ShutdownSystemHook()
         {
-            UnhookWindowsHookEx(HookID);
-            IsHookSetup = false;
+            UnhookWindowsHookEx(_hookId);
         }
 
         /// <summary>
@@ -103,11 +81,11 @@ namespace JUtils.model.hotkeys
         /// Hotkey and matches their Modifier/Key. If they both match, and the hotkey allows
         /// the callback method to be called, it is called.
         /// </summary>
-        private static bool CheckHotkeys()  
+        private static void CheckHotkeys()  
         {
             foreach (GlobalHotkey hotkey in Hotkeys)
             {
-                if (!hotkey.pressed)
+                if (!hotkey.Pressed)
                 {
                     bool allPressed = true;
                     foreach (Key key in hotkey.Keys)
@@ -116,36 +94,32 @@ namespace JUtils.model.hotkeys
                     }
                     if (allPressed && hotkey.CanExecute)
                     {
-                        hotkey.pressed = true;
-                        hotkey.Callback?.Invoke();
-                        HotkeyFired?.Invoke(hotkey);
-                        return true;
+                        hotkey.Pressed = true;
+                        hotkey.Callback.Invoke();
+                        return;
                     }
                 } 
-                else if (hotkey.pressed)
+                else if (hotkey.Pressed)
                 {
                     foreach (Key key in hotkey.Keys)
                     {
                         if (Keyboard.IsKeyUp(key))
                         {
-                            hotkey.pressed = false;
+                            hotkey.Pressed = false;
                             break;
   
                         }
                     }
                 }
             }
-            return false;
         }
 
         /// <summary>
         /// Finds and returns all hotkeys in the hotkeys list that have matching modifiers and keys given
         /// </summary>
-        /// <param name="modifier"></param>
-        /// <param name="key"></param>
-        /// <param name="callbackMethod">If this is not null, the callback method will be checked</param>
+        /// <param name="keys"></param>
         /// <returns></returns>
-        public static List<GlobalHotkey> FindHotkeys(Key[] keys)
+        private static List<GlobalHotkey> FindHotkeys(Key[] keys)
         {
             List<GlobalHotkey> hotkeys = new List<GlobalHotkey>();
             List<Key> keyList = new List<Key>(keys);
@@ -163,8 +137,7 @@ namespace JUtils.model.hotkeys
         /// <summary>
         /// Creates and adds a new hotkey to the hotkeys list.
         /// </summary>
-        /// <param name="modifier">The modifier key. ALT Does not work.</param>
-        /// <param name="key"></param>
+        /// <param name="keys"></param>
         /// <param name="callbackMethod"></param>
         /// <param name="canExecute"></param>
         public static void AddHotkey(Key[] keys, Action callbackMethod, bool canExecute = true)
@@ -174,23 +147,22 @@ namespace JUtils.model.hotkeys
 
         /// <summary>
         /// Removes a or all hotkey from the hotkeys list (depending on 
-        /// <paramref name="removeAllOccourances"/>) by going through every hotkey 
+        /// <paramref name="removeAllOccurrences"/>) by going through every hotkey 
         /// and checking it's modifier and key to see if they match. is so, it removes it.
         /// </summary>
-        /// <param name="modifier"></param>
-        /// <param name="key"></param>
-        /// <param name="removeAllOccourances">
+        /// <param name="keys"></param>
+        /// <param name="removeAllOccurrences">
         /// If this is false, the first found hotkey will be removed. 
-        /// else, every occourance will be removed.
+        /// else, every occurrence will be removed.
         /// </param>
-        public static void RemoveHotkey(Key[] keys, bool removeAllOccourances = false)
+        public static void RemoveHotkey(Key[] keys, bool removeAllOccurrences = false)
         {
             List<GlobalHotkey> originalHotkeys = Hotkeys;
             List<GlobalHotkey> toBeRemoved = FindHotkeys(keys);
 
             if (toBeRemoved.Count > 0)
             {
-                if (removeAllOccourances)
+                if (removeAllOccurrences)
                 {
                     foreach (GlobalHotkey hotkey in toBeRemoved)
                     {
@@ -209,28 +181,26 @@ namespace JUtils.model.hotkeys
         /// <summary>
         /// Sets up the Key Up/Down event hooks.
         /// </summary>
-        /// <param name="proc">The callback method to be called when a key up/down occours</param>
+        /// <param name="proc">The callback method to be called when a key up/down occurs</param>
         /// <returns></returns>
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
-            using (Process curProcess = Process.GetCurrentProcess())
-            {
-                using (ProcessModule curModule = curProcess.MainModule)
-                {
-                    return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
-                }
-            }
+            Process curProcess = Process.GetCurrentProcess();
+            ProcessModule curModule = curProcess.MainModule ?? throw new InvalidOperationException();
+            string curModuleName = curModule.ModuleName ?? throw new InvalidOperationException();
+            return SetWindowsHookEx(WhKeyboardLl, proc, GetModuleHandle(curModuleName), 0);
         }
 
         /// <summary>
-        /// The method called when a key up/down occours across the system.
+        /// The method called when a key up/down occurs across the system.
         /// </summary>
         /// <param name="nCode">idk tbh</param>
-        /// <param name="lParam">LPARAM, contains the key that was pressed. not used atm</param>
-        /// <returns>LRESULT</returns>
+        /// <param name="wParam"></param>
+        /// <param name="lParam">contains the key that was pressed. not used atm</param>
+        /// <returns>IntPtr</returns>
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            // Checks if this is called from keydown only because gkey ups aren't used.
+            // Checks if this is called from keydown only because key ups aren't used.
             if (nCode >= 0)
             {
                 CheckHotkeys();
@@ -245,7 +215,7 @@ namespace JUtils.model.hotkeys
 
             // I think this tells windows that this app has successfully
             // handled the key events and now other apps can handle it next.
-            return CallNextHookEx(HookID, nCode, wParam, lParam);
+            return CallNextHookEx(_hookId, nCode, wParam, lParam);
         }
 
         #region Native Methods

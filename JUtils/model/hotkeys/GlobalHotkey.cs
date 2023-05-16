@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace JUtils.model.hotkeys
@@ -15,7 +10,6 @@ namespace JUtils.model.hotkeys
     /// </summary>
     public class GlobalHotkey
     {
-
         /// <summary>
         /// The keys required to be pressed for the hotkey to be fired
         /// </summary>
@@ -24,7 +18,7 @@ namespace JUtils.model.hotkeys
         /// <summary>
         /// hotkey pressed state
         /// </summary>
-        public bool pressed { get; set; }
+        public bool Pressed { get; set; }
 
         // You could change this to a list of actions if you want
         // multiple things to be fired when the hotkey fires.
@@ -42,8 +36,7 @@ namespace JUtils.model.hotkeys
         /// Initiates a new hotkey with the given modifier, key, callback method, 
         /// and also a boolean stating if the callback can be run (can be changed, see <see cref="CanExecute"/>)
         /// </summary>
-        /// <param name="modifier">The modifier key required to be pressed</param>
-        /// <param name="key">The key required to be pressed</param>
+        /// <param name="keys">The keys required to be pressed</param>
         /// <param name="callbackMethod">The method that gets called when the hotkey is fired</param>
         /// <param name="canExecute">
         /// States whether the callback can be run 

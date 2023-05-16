@@ -16,16 +16,20 @@
         
         
         <TextBlock Grid.Row="0" Text="JUtils" FontSize="20" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Row="2" Text="JUtils" FontSize="12" Foreground="#A0A0A0" TextDecorations="Underline" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Row="2"  VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Hyperlink  NavigateUri="https://github.com/JonasSeifried/JUtils" FontSize="12" Foreground="#A0A0A0" TextDecorations="Underline" RequestNavigate="Hyperlink_OnRequestNavigate">
+                JUtils 0.1
+            </Hyperlink>
+        </TextBlock>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="45"/>
                 <RowDefinition Height="45"/>
                 <RowDefinition Height="45"/>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Home" FontSize="12" Foreground="#A0A0A0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="1" Text="Settings" FontSize="12" Foreground="#A0A0A0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="2" Text="MicToggle" FontSize="12" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="0" ToolTip="ComingSoon" Text="Home" FontSize="12" Foreground="#A0A0A0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="1" ToolTip="ComingSoon" Text="Settings" FontSize="12" Foreground="#A0A0A0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="2" ToolTip="ComingSoon" Text="MicToggle" FontSize="12" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
         </Grid>
     </Grid>
