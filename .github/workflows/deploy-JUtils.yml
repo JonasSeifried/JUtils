@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "JUtils/v*"
-
 env:
   PROJECT_PATH: JUtils/JUtils.csproj
         
