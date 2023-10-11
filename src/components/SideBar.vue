@@ -9,20 +9,15 @@ var selectedElement: HTMLElement | null = document.getElementById("home")
 selectedElement?.classList.add("active")
 
 function navigate(view: string) {
-  if (selectedElement) {
-    if (selectedElement.id == view) {
-      return
-    }
-    selectedElement.classList.remove("active")
-  }
+  if (selectedElement?.id == view) { return }
+  selectedElement?.classList.remove("active")
+
 
   emit('navToView', view)
 
 
   selectedElement = document.getElementById(view)
-  if (selectedElement) {
-    selectedElement.classList.add("active")
-  }
+  selectedElement?.classList.add("active")
 
 }
 </script>
