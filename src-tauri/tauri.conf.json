@@ -8,7 +8,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "jutils",
+    "productName": "JUtils",
     "version": "0.1.0"
   },
   "tauri": {
@@ -19,6 +19,9 @@
         "execute": false,
         "open": true,
         "sidecar": false
+      },
+      "globalShortcut": {
+        "all": true
       }
     },
     "bundle": {
@@ -36,7 +39,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.github.JonasSeifried.JUtils",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -65,8 +68,8 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "alwaysOnTop": true,
-        "x": 1110,
+        "alwaysOnTop": false,
+        "x": 2110,
         "y": 30,
         "title": "JUtils",
         "width": 800
