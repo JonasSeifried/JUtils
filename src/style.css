@@ -13,6 +13,8 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   height: 100%;
+
+  --primary: #800080
 }
 
 html body {
@@ -55,7 +57,7 @@ button {
 }
 
 button:hover {
-  border-color: #646cff;
+  border-color: var(--primary);
 }
 
 button:focus,
@@ -72,19 +74,4 @@ button:focus-visible {
   width: 100%;
   height: 100%;
   text-align: center;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
-
-  button {
-    background-color: #f9f9f9;
-  }
 }

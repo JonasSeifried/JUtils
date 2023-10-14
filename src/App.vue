@@ -1,33 +1,32 @@
 <script setup lang="ts">
-import SideBar from "./components/SideBar.vue"
-import Home from "./components/Home.vue"
-import Settings from "./components/Settings.vue"
-import { shallowRef } from "vue"
-import MicMute from "./components/MicMute.vue";
-
+import SideBar from "./components/SideBarComponent.vue";
+import Home from "./components/HomeComponent.vue";
+import Settings from "./components/SettingsComponent.vue";
+import { shallowRef } from "vue";
+import MicMute from "./components/MicMuteComponent.vue";
 
 const navigate = (view: string) => {
   switch (view) {
     case "home":
-      currentView.value = Home
-      break
+      currentView.value = Home;
+      break;
     case "settings":
-      currentView.value = Settings
-      break
+      currentView.value = Settings;
+      break;
     case "micmute":
-      currentView.value = MicMute
-      break
+      currentView.value = MicMute;
+      break;
     default:
-      currentView.value = Home
-      break
+      currentView.value = Home;
+      break;
   }
-}
+};
 
-const currentView = shallowRef(Home)
+const currentView = shallowRef(Home);
 </script>
 
 <template>
-  <div class=content>
+  <div class="content">
     <SideBar @navToView="navigate" />
     <currentView />
   </div>
@@ -39,7 +38,5 @@ const currentView = shallowRef(Home)
   flex-direction: row;
   justify-content: start;
   height: 100%;
-
-
 }
 </style>
