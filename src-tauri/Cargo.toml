@@ -21,6 +21,16 @@ thiserror = "1.0.49"
 tauri = { version = "1.5.1", features = ["global-shortcut-all", "shell-open"] }
 rusqlite = { version = "0.29.0", features = ["bundled"] }
 
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.51.1", features = [
+    "Win32_Media_Audio",
+    "Win32_System_Com",
+    "Win32_Foundation",
+    "Win32_System_Com_StructuredStorage",
+    "Win32_System_Variant",
+    "Win32_Media_Audio_Endpoints",
+] }
+
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
 # If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.

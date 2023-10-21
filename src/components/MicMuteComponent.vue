@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import Hotkey from "./HotkeyComponent.vue";
 import { HotkeyNames } from "../hotkey-names";
+import { invoke } from "@tauri-apps/api"
 
 function hotkey_pressed() {
-  console.log("test")
+  //Todo Error handling
+  invoke("toggle_mic")
+  .catch((err) => { console.log(err)})
 }
 </script>
 

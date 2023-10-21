@@ -4,6 +4,7 @@
 mod commands;
 mod db;
 mod error;
+mod features;
 mod hotkey;
 
 fn main() {
@@ -11,7 +12,8 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             commands::fetch_mic_mute_hotkey,
-            commands::set_mic_mute_hotkey
+            commands::set_mic_mute_hotkey,
+            commands::toggle_mic
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

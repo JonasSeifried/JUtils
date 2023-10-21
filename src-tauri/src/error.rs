@@ -2,6 +2,10 @@
 pub enum Error {
     #[error(transparent)]
     SQLError(#[from] rusqlite::Error),
+
+    #[cfg(windows)]
+    #[error(transparent)]
+    WinowsError(#[from] windows::core::Error),
 }
 
 impl serde::Serialize for Error {
@@ -10,17 +14,5 @@ impl serde::Serialize for Error {
         S: serde::ser::Serializer,
     {
         serializer.serialize_str(self.to_string().as_ref())
-    }
-}
-
-pub trait ToError {
-    fn to_error(self) -> Error
-    where
-        Self: Sized;
-}
-
-impl ToError for rusqlite::Error {
-    fn to_error(self) -> Error {
-        Error::SQLError(self)
     }
 }

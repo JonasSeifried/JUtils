@@ -1,29 +1,49 @@
-use crate::{
-    error::{Error, ToError},
-    hotkey::Hotkey,
-};
+use crate::{error::Error, hotkey::Hotkey};
 use rusqlite::Connection;
 
-pub fn init_db() {
-    let conn = open_db().expect("Failed to connect to database");
-
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS hotkeys (
-            name TEXT PRIMARY KEY,
-            keys TEXT NOT NULL
-        )",
-        (),
-    )
-    .expect("Failed to connect to database");
+fn open_db() -> Result<Connection, Error> {
+    Ok(Connection::open(".db")?)
 }
 
-fn open_db() -> Result<Connection, Error> {
-    Connection::open(".db").map_err(|e| e.to_error())
+fn init_hotkey_table(db_connection: &Connection) {
+    db_connection
+        .execute(
+            "CREATE TABLE IF NOT EXISTS hotkeys (
+                name TEXT PRIMARY KEY,
+                keys TEXT NOT NULL
+        )",
+            (),
+        )
+        .expect("Failed to create hotkey Table");
+}
+
+fn init_settings_table(db_connection: &Connection) {
+    db_connection
+        .execute(
+            "CREATE TABLE IF NOT EXISTS settings (
+            id INTEGER PRIMARY KEY,
+            mute_state BOOL
+        )",
+            (),
+        )
+        .expect("Failed to create settings Table");
+    db_connection
+        .execute(
+            "INSERT OR IGNORE INTO settings(id, mute_state) VALUES(?1, ?2)",
+            (1, false),
+        )
+        .expect("Insert or ignore settings");
+}
+
+pub fn init_db() {
+    let db_connection = open_db().expect("Failed to connect to database");
+    init_hotkey_table(&db_connection);
+    init_settings_table(&db_connection);
 }
 
 pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey, Error> {
     let conn = open_db()?;
-    conn.query_row(
+    let hotkey = conn.query_row(
         "SELECT * FROM hotkeys where name = ?1",
         (hotkey_name,),
         |row| {
@@ -32,8 +52,8 @@ pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey, Error> {
                 keys: row.get(1)?,
             })
         },
-    )
-    .map_err(|e| e.to_error())
+    )?;
+    Ok(hotkey)
 }
 
 pub fn set_hotkey(hotkey: Hotkey) -> Result<(), Error> {
@@ -44,7 +64,18 @@ pub fn set_hotkey(hotkey: Hotkey) -> Result<(), Error> {
         ON CONFLICT(name) 
         DO UPDATE SET keys=?2;",
         (hotkey.name, hotkey.keys),
-    )
-    .map_err(|err| err.to_error())
-    .map(|_| ())
+    )?;
+
+    Ok(())
+}
+
+pub fn toggle_mute_state() -> Result<bool, Error> {
+    let conn = open_db()?;
+    let current_state: bool =
+        conn.query_row("Select mute_state from settings", (), |row| row.get(0))?;
+    conn.execute(
+        "UPDATE settings SET mute_state=?1 where id=1",
+        (!current_state,),
+    )?;
+    Ok(!current_state)
 }
