@@ -17,28 +17,30 @@ fn init_hotkey_table(db_connection: &Connection) {
         .expect("Failed to create hotkey Table");
 }
 
-fn init_settings_table(db_connection: &Connection) {
+fn init_settings_table(db_connection: &Connection, app_name: &str) {
     db_connection
         .execute(
             "CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY,
-            mute_state BOOL
+            app_name String,
+            mute_state BOOL,
+            auto_launch BOOL
         )",
             (),
         )
         .expect("Failed to create settings Table");
     db_connection
         .execute(
-            "INSERT OR IGNORE INTO settings(id, mute_state) VALUES(?1, ?2)",
-            (1, false),
+            "INSERT OR IGNORE INTO settings(id, app_name, mute_state, auto_launch) VALUES(?1, ?2, ?3, ?4)",
+            (1, app_name, false, true),
         )
         .expect("Insert or ignore settings");
 }
 
-pub fn init_db() {
+pub fn init_db(app_name: &str) {
     let db_connection = open_db().expect("Failed to connect to database");
     init_hotkey_table(&db_connection);
-    init_settings_table(&db_connection);
+    init_settings_table(&db_connection, app_name);
 }
 
 pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey, Error> {
@@ -78,4 +80,23 @@ pub fn toggle_mute_state() -> Result<bool, Error> {
         (!current_state,),
     )?;
     Ok(!current_state)
+}
+
+pub fn get_auto_launch() -> Result<bool, Error> {
+    let conn = open_db()?;
+    Ok(conn.query_row("Select auto_launch from settings", (), |row| row.get(0))?)
+}
+
+pub fn set_auto_launch(new_state: bool) -> Result<(), Error> {
+    let conn = open_db()?;
+    conn.execute(
+        "UPDATE settings SET auto_launch=?1 where id=1",
+        (new_state,),
+    )?;
+    Ok(())
+}
+
+pub fn get_app_name() -> Result<String, Error> {
+    let conn = open_db()?;
+    Ok(conn.query_row("Select app_name from settings", (), |row| row.get(0))?)
 }

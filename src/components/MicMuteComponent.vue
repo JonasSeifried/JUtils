@@ -1,36 +1,24 @@
 <script setup lang="ts">
 import Hotkey from "./HotkeyComponent.vue";
 import { HotkeyNames } from "../hotkey-names";
-import { invoke } from "@tauri-apps/api"
+import { invoke } from "@tauri-apps/api";
 
 function hotkey_pressed() {
   //Todo Error handling
-  invoke("toggle_mic")
-  .catch((err) => { console.log(err)})
+  invoke("toggle_mic").catch((err) => {
+    console.log(err);
+  });
 }
 </script>
 
 <template>
-  <div class="mic-mute-component">
-    <h1>MicMute</h1>
-    <Hotkey class="hotkey-component" @callback="hotkey_pressed" :hotkey_name="HotkeyNames.MicMute" />
+  <div class="flex w-full flex-col items-center">
+    <h1 class="mt-10 text-center text-5xl font-bold text-white">MicMute</h1>
+    <p class="m-1 text-white">Set a global hotkey to mute your default Mic</p>
+    <Hotkey
+      class="m-2 w-80"
+      @callback="hotkey_pressed"
+      :hotkey_name="HotkeyNames.MicMute"
+    />
   </div>
 </template>
-
-<style scoped>
-#error {
-  color: lightcoral;
-  margin: 0;
-}
-
-.hotkey-component {
-  max-width: 20rem;
-  align-self: center;
-}
-
-.mic-mute-component {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-</style>

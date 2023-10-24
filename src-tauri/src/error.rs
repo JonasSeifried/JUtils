@@ -6,6 +6,15 @@ pub enum Error {
     #[cfg(windows)]
     #[error(transparent)]
     WinowsError(#[from] windows::core::Error),
+
+    #[error(transparent)]
+    IOError(#[from] std::io::Error),
+
+    #[error(transparent)]
+    AutoLaunchError(#[from] auto_launch::Error),
+
+    #[error("{0}")]
+    UnexpectedError(String),
 }
 
 impl serde::Serialize for Error {

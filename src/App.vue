@@ -26,17 +26,8 @@ const currentView = shallowRef(Home);
 </script>
 
 <template>
-  <div class="content">
+  <div class="flex h-full select-none flex-row bg-neutral-900">
     <SideBar @navToView="navigate" />
     <currentView />
   </div>
 </template>
-
-<style scoped>
-.content {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  height: 100%;
-}
-</style>

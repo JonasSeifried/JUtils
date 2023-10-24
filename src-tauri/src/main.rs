@@ -8,13 +8,19 @@ mod features;
 mod hotkey;
 
 fn main() {
-    db::init_db();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             commands::fetch_mic_mute_hotkey,
             commands::set_mic_mute_hotkey,
-            commands::toggle_mic
+            commands::toggle_mic,
+            commands::set_auto_launch,
+            commands::get_auto_launch
         ])
+        .setup(|app| {
+            db::init_db(&app.package_info().name);
+            features::auto_launch::init().expect("Could not init auto_launch");
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

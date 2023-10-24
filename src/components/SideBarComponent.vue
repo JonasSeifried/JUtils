@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { open } from "@tauri-apps/api/shell";
+import { ref } from "vue";
 
 const emit = defineEmits<{
   (event: "navToView", view: string): void;
@@ -12,63 +13,42 @@ function navigate(view: string) {
   if (selectedElement?.id == view) {
     return;
   }
-  selectedElement?.classList.remove("active");
+  selectedElement?.classList.remove("text-fuchsia-700");
+  selectedElement?.classList.add("text-white");
 
   emit("navToView", view);
 
   selectedElement = document.getElementById(view);
-  selectedElement?.classList.add("active");
+  selectedElement?.classList.add("text-fuchsia-700");
+  selectedElement?.classList.remove("text-white");
 }
+const navigations = ref([
+  { id: "home", title: "Home" },
+  { id: "settings", title: "Settings" },
+  { id: "micmute", title: "MicMute" },
+]);
 </script>
 
 <template>
-  <div class="side-bar-component">
+  <div
+    class="flex h-full w-1/6 cursor-pointer flex-col justify-between rounded-xl border-r-2 border-solid border-fuchsia-700 text-center shadow-r-2xl shadow-fuchsia-700"
+  >
     <div>
-      <h3 style="user-select: none">JUtils</h3>
-      <p class="nav-item" id="home" @click="navigate('home')">Home</p>
-      <p class="nav-item" id="settings" @click="navigate('settings')">
-        Settings
-      </p>
-      <p class="nav-item" id="micmute" @click="navigate('micmute')">MicMute</p>
+      <h3 class="m-6 cursor-default text-2xl text-white">JUtils</h3>
+      <div v-for="nav in navigations">
+        <p
+          class="m-3 text-white shadow-fuchsia-950 transition-all hover:scale-105 hover:text-fuchsia-700 hover:text-shadow"
+          :id="nav.id"
+          @click="navigate(nav.id)"
+        >
+          {{ nav.title }}
+        </p>
+      </div>
     </div>
-    <a id="jutils-link" @click="open('https://github.com/JonasSeifried/JUtils')"
+    <a
+      class="hover: m-4 text-white underline transition-all hover:scale-105"
+      @click="open('https://github.com/JonasSeifried/JUtils')"
       >JUtils0.1</a
     >
   </div>
 </template>
-
-<style scoped>
-.side-bar-component {
-  display: flex;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-  border-right: 2px solid var(--primary);
-  border-radius: 10px;
-  box-shadow: 10px 0 15px -10px var(--primary);
-  user-select: none;
-
-  height: 100%;
-  width: 150px;
-}
-
-.active {
-  color: gray !important;
-}
-
-.nav-item {
-  transition: text-shadow 0.3s ease;
-  color: white;
-  user-select: none;
-}
-
-.nav-item:hover {
-  color: var(--primary);
-  text-shadow: 4px 4px 15px var(--primary);
-}
-
-#jutils-link {
-  color: white;
-  text-decoration: underline;
-  margin: 1rem;
-}
-</style>
