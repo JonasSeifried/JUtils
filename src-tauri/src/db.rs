@@ -65,8 +65,9 @@ pub fn set_hotkey(hotkey: Hotkey) -> Result<(), Error> {
         VALUES(?1, ?2) 
         ON CONFLICT(name) 
         DO UPDATE SET keys=?2;",
-        (hotkey.name, hotkey.keys),
+        (&hotkey.name, &hotkey.keys),
     )?;
+    println!("Debug: Set hotkey {} -> {}", hotkey.name, hotkey.keys);
 
     Ok(())
 }

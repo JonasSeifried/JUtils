@@ -26,51 +26,64 @@ const hint_disabled = computed(() => {
 
 async function submit() {
   error_message.value = "";
-  try {
-    if (inputValue.value.length == 0 && current_hotkey) {
-      await unregister(current_hotkey);
-      setHotKey();
-      return;
-    }
-    if (inputValue.value == current_hotkey) {
-      return;
-    }
-
-    await register(inputValue.value, () => emit("callback"));
-
-    if (current_hotkey) {
-      unregister(current_hotkey);
-    }
-  } catch (error) {
-    console.log(error);
-    error_message.value = error as string;
+  if (current_hotkey == inputValue.value) {
     return;
   }
-  hint_message.value = "registered: " + inputValue.value;
-
-  current_hotkey = inputValue.value;
   setHotKey();
 }
 function clear() {
   inputValue.value = "";
 }
 
-function setHotKey() {
-  invoke(`set_${probs.hotkey_name}_hotkey`, { keys: current_hotkey }).catch(
-    (error) => {
-      error_message.value = "Could not save hotkey \n" + error;
-    },
-  );
+async function setHotKey() {
+  const oldHotkey = current_hotkey;
+  current_hotkey = inputValue.value;
+  if (current_hotkey.length != 0) {
+    await registerHotkey(current_hotkey);
+  }
+  await storeHotkey(current_hotkey);
+  if (oldHotkey) {
+    await unregisterHotkey(oldHotkey);
+  }
+  if (current_hotkey.length == 0) {
+    hint_message.value = "Hotkey cleared!";
+    return;
+  }
+  hint_message.value = "registered: " + inputValue.value;
+}
+
+async function registerHotkey(hotkey: string) {
+  try {
+    await register(hotkey, () => emit("callback"));
+  } catch (error) {
+    error_message.value = error as string;
+    console.log(error);
+  }
+}
+
+async function unregisterHotkey(hotkey: string) {
+  try {
+    await unregister(hotkey);
+  } catch (error) {
+    error_message.value = error as string;
+    console.log(error);
+  }
+}
+
+async function storeHotkey(hotkey: string) {
+  await invoke(`set_${probs.hotkey_name}_hotkey`, {
+    keys: hotkey,
+  }).catch((error) => {
+    error_message.value = "Could not save hotkey \n" + error;
+  });
 }
 
 async function loadHotkey() {
-  try {
-    let res = await invoke(`fetch_${probs.hotkey_name}_hotkey`);
-    await register(res as string, () => emit("callback"));
-    inputValue.value = res as string;
-    current_hotkey = res as string;
-  } catch (error) {
-    error_message.value = error as string;
+  let res = await invoke(`fetch_${probs.hotkey_name}_hotkey`);
+  current_hotkey = res as string;
+  inputValue.value = current_hotkey;
+  if (current_hotkey.length != 0) {
+    registerHotkey(current_hotkey);
   }
 }
 
