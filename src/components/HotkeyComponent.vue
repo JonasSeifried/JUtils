@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { register, unregister } from "@tauri-apps/api/globalShortcut";
+import SnakeBar from "./SnakeBar.vue";
 import { invoke } from "@tauri-apps/api";
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
+import { SnakeBarType } from "../snake-bar-type";
 
 const probs = defineProps<{
   hotkey_name: string;
@@ -10,23 +12,23 @@ const emit = defineEmits<{
   (e: "callback", value: void): void;
 }>();
 
-var current_hotkey: string | null;
-var error_message = ref("");
-var hint_message = ref("");
+var current_hotkey: string;
 
+const snakeBarText = ref("");
+const snakeBarOpen = ref(false);
+const snakeBarType = ref(SnakeBarType.error);
 const inputValue = ref("");
 
-const error_disabled = computed(() => {
-  return error_message.value.length == 0;
-});
-
-const hint_disabled = computed(() => {
-  return hint_message.value.length == 0;
-});
-
 async function submit() {
-  error_message.value = "";
   if (current_hotkey == inputValue.value) {
+    if (current_hotkey.length == 0)
+      setSnakeBar("Hotkey already cleared", SnakeBarType.success);
+    else
+      setSnakeBar(
+        `'${current_hotkey}' is already set as your hotkey`,
+        SnakeBarType.success,
+      );
+
     return;
   }
   setHotKey();
@@ -39,25 +41,33 @@ async function setHotKey() {
   const oldHotkey = current_hotkey;
   current_hotkey = inputValue.value;
   if (current_hotkey.length != 0) {
-    await registerHotkey(current_hotkey);
+    if (!(await registerHotkey(current_hotkey))) {
+      current_hotkey = oldHotkey;
+      return;
+    }
   }
-  await storeHotkey(current_hotkey);
-  if (oldHotkey) {
-    await unregisterHotkey(oldHotkey);
-  }
-  if (current_hotkey.length == 0) {
-    hint_message.value = "Hotkey cleared!";
+  if (!(await storeHotkey(current_hotkey))) {
+    unregister(current_hotkey);
+    current_hotkey = oldHotkey;
     return;
   }
-  hint_message.value = "registered: " + inputValue.value;
+  unregisterHotkey(oldHotkey);
+  if (current_hotkey.length == 0) {
+    setSnakeBar("Hotkey cleared!", SnakeBarType.success);
+    return;
+  }
+  setSnakeBar(`${current_hotkey} registered!`, SnakeBarType.success);
 }
 
-async function registerHotkey(hotkey: string) {
+async function registerHotkey(hotkey: string): Promise<boolean> {
   try {
     await register(hotkey, () => emit("callback"));
+    return true;
   } catch (error) {
-    error_message.value = error as string;
+    setSnakeBar(error as string, SnakeBarType.error);
+
     console.log(error);
+    return false;
   }
 }
 
@@ -65,17 +75,21 @@ async function unregisterHotkey(hotkey: string) {
   try {
     await unregister(hotkey);
   } catch (error) {
-    error_message.value = error as string;
-    console.log(error);
+    setSnakeBar(error as string, SnakeBarType.error);
+    console.error(error);
   }
 }
 
-async function storeHotkey(hotkey: string) {
+async function storeHotkey(hotkey: string): Promise<boolean> {
   await invoke(`set_${probs.hotkey_name}_hotkey`, {
     keys: hotkey,
   }).catch((error) => {
-    error_message.value = "Could not save hotkey \n" + error;
+    setSnakeBar("Could not save hotkey \n" + error, SnakeBarType.error);
+    console.error(error);
+
+    return false;
   });
+  return true;
 }
 
 async function loadHotkey() {
@@ -87,6 +101,12 @@ async function loadHotkey() {
   }
 }
 
+function setSnakeBar(msg: string, type: SnakeBarType) {
+  snakeBarText.value = msg;
+  snakeBarType.value = type;
+  snakeBarOpen.value = true;
+}
+
 onMounted(() => {
   loadHotkey();
 });
@@ -94,12 +114,6 @@ onMounted(() => {
 
 <template>
   <div class="flex w-full flex-col items-center">
-    <p class="m-1 text-center text-red-400" v-if="!error_disabled">
-      {{ error_message }}
-    </p>
-    <p class="m-1 text-center text-green-500" v-if="!hint_disabled">
-      {{ hint_message }}
-    </p>
     <div
       class="pointer-events-auto w-fit divide-x-2 divide-fuchsia-700 rounded-lg bg-neutral-800 p-0 outline-fuchsia-600 ring-2 ring-fuchsia-700 transition-transform focus-within:hover:scale-105"
     >
@@ -121,5 +135,8 @@ onMounted(() => {
     >
       Save
     </button>
+    <SnakeBar v-model:open="snakeBarOpen" :type="snakeBarType">
+      {{ snakeBarText }}
+    </SnakeBar>
   </div>
 </template>

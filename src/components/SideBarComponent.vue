@@ -31,7 +31,7 @@ const navigations = ref([
 
 <template>
   <div
-    class="flex h-full w-1/6 cursor-pointer flex-col justify-between rounded-xl border-r-2 border-solid border-fuchsia-700 text-center shadow-r-2xl shadow-fuchsia-700"
+    class="flex h-full cursor-pointer flex-col justify-between rounded-xl border-r-2 border-solid border-fuchsia-700 text-center shadow-r-2xl shadow-fuchsia-700"
   >
     <div>
       <h3 class="m-6 cursor-default text-2xl text-white">JUtils</h3>

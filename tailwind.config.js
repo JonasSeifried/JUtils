@@ -30,5 +30,11 @@ export default {
       )
     }),
   ],
+  safelist: [
+    'text-red-400',
+    'text-green-500',
+    'ring-red-400',
+    'ring-green-500'
+  ]
 }
 
