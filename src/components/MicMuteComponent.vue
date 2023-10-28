@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Hotkey from "./HotkeyComponent.vue";
-import { HotkeyNames } from "../hotkey-names";
+import { HotkeyNames } from "../hotkey-manager";
 import { invoke } from "@tauri-apps/api";
 
 function hotkey_pressed() {

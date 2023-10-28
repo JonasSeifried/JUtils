@@ -4,9 +4,10 @@ import SnakeBar from "./SnakeBar.vue";
 import { invoke } from "@tauri-apps/api";
 import { onMounted, ref } from "vue";
 import { SnakeBarType } from "../snake-bar-type";
+import { HotkeyNames } from "../hotkey-manager";
 
 const probs = defineProps<{
-  hotkey_name: string;
+  hotkey_name: HotkeyNames;
 }>();
 const emit = defineEmits<{
   (e: "callback", value: void): void;
@@ -96,9 +97,6 @@ async function loadHotkey() {
   let res = await invoke(`fetch_${probs.hotkey_name}_hotkey`);
   current_hotkey = res as string;
   inputValue.value = current_hotkey;
-  if (current_hotkey.length != 0) {
-    registerHotkey(current_hotkey);
-  }
 }
 
 function setSnakeBar(msg: string, type: SnakeBarType) {
