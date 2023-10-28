@@ -23,16 +23,17 @@ fn init_settings_table(db_connection: &Connection, app_name: &str) {
             "CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY,
             app_name String,
+            auto_launch BOOL,
             mute_state BOOL,
-            auto_launch BOOL
+            mic_mute_audio_volume REAL
         )",
             (),
         )
         .expect("Failed to create settings Table");
     db_connection
         .execute(
-            "INSERT OR IGNORE INTO settings(id, app_name, mute_state, auto_launch) VALUES(?1, ?2, ?3, ?4)",
-            (1, app_name, false, true),
+            "INSERT OR IGNORE INTO settings(id, app_name, auto_launch, mute_state, mic_mute_audio_volume) VALUES(?1, ?2, ?3, ?4, ?5)",
+            (1, app_name, true, false, 0.1),
         )
         .expect("Insert or ignore settings");
 }
@@ -81,6 +82,24 @@ pub fn toggle_mute_state() -> Result<bool, Error> {
         (!current_state,),
     )?;
     Ok(!current_state)
+}
+
+pub fn get_mic_mute_audio_volume() -> Result<f32, Error> {
+    let conn = open_db()?;
+    Ok(
+        conn.query_row("Select mic_mute_audio_volume from settings", (), |row| {
+            row.get(0)
+        })?,
+    )
+}
+
+pub fn set_mic_mute_audio_volume(new_volume: f32) -> Result<(), Error> {
+    let conn = open_db()?;
+    conn.execute(
+        "UPDATE settings SET mic_mute_audio_volume=?1 where id=1",
+        (new_volume,),
+    )?;
+    Ok(())
 }
 
 pub fn get_auto_launch() -> Result<bool, Error> {

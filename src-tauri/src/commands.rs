@@ -1,7 +1,7 @@
 use crate::{
     db,
     error::Error,
-    features::{auto_launch, mic_mute},
+    features::{audio_manager, auto_launch, mic_mute},
     hotkey::{Hotkey, MICMUTE},
 };
 
@@ -19,9 +19,11 @@ pub fn set_mic_mute_hotkey(keys: &str) -> Result<(), Error> {
 }
 
 #[tauri::command]
-pub fn toggle_mic() -> Result<(), Error> {
+pub async fn toggle_mic() -> Result<(), Error> {
     let new_state = db::toggle_mute_state()?;
-    mic_mute::toggle_mic(new_state)
+    mic_mute::toggle_mic(new_state)?;
+    println!("Debug: Toggled Mic -> {}", new_state);
+    audio_manager::play_mute_sound(new_state).await
 }
 
 #[tauri::command]

@@ -13,6 +13,15 @@ pub enum Error {
     #[error(transparent)]
     AutoLaunchError(#[from] auto_launch::Error),
 
+    #[error(transparent)]
+    AudioStreamError(#[from] rodio::StreamError),
+
+    #[error(transparent)]
+    AudioDecoderError(#[from] rodio::decoder::DecoderError),
+
+    #[error(transparent)]
+    AudioPlayError(#[from] rodio::PlayError),
+
     #[error("{0}")]
     UnexpectedError(String),
 }
