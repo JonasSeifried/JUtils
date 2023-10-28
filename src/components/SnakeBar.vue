@@ -64,8 +64,40 @@ watch(
   transition: opacity 0.5s ease;
 }
 
+.v-enter-from {
+  scale: 105%;
+}
+
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+.v-enter-active {
+  animation: bounce-in 0.8s;
+}
+.v-leave-active {
+  animation: shrink-out 0.8s;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shrink-out {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
 }
 </style>
