@@ -41,14 +41,8 @@ watch(
 <template>
   <Teleport to="#snackbar">
     <Transition>
-      <div
-        class="fixed top-[75%] z-[999] flex w-[inherit] justify-center"
-        v-if="open"
-      >
-        <div
-          class="max-w-[80%] rounded bg-neutral-800 p-2"
-          :class="`ring-2 ring-${color}`"
-        >
+      <div class="m-1 flex" v-if="open">
+        <div class="rounded bg-neutral-800 p-2" :class="`ring-2 ring-${color}`">
           <p class="text-center" :class="'text-' + color">
             <slot></slot>
           </p>

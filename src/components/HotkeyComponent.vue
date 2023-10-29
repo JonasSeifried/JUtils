@@ -133,6 +133,7 @@ onMounted(() => {
     >
       Save
     </button>
+
     <SnakeBar v-model:open="snakeBarOpen" :type="snakeBarType">
       {{ snakeBarText }}
     </SnakeBar>

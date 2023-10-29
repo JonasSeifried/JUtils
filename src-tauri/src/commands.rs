@@ -35,3 +35,15 @@ pub fn set_auto_launch(new_state: bool) -> Result<(), Error> {
 pub fn get_auto_launch() -> Result<bool, Error> {
     db::get_auto_launch()
 }
+
+#[tauri::command]
+pub fn set_mic_mute_audio_volume(volume: i32) -> Result<(), Error> {
+    println!("Debug: Set Mic Mute Audio Volume -> {}%", volume);
+    db::set_mic_mute_audio_volume(volume as f32 / 100.0)
+}
+
+#[tauri::command]
+pub fn get_mic_mute_audio_volume() -> Result<i32, Error> {
+    let volume = db::get_mic_mute_audio_volume()?;
+    Ok((volume * 100.0) as i32)
+}

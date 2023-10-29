@@ -8,7 +8,10 @@ const props = defineProps<{
 
 <template>
   <div>
-    <div id="snackbar" class="w-[inherit]"></div>
+    <div
+      id="snackbar"
+      class="fixed top-[75%] z-[999] flex h-full w-[inherit] flex-col items-center"
+    ></div>
     <props.content />
   </div>
 </template>

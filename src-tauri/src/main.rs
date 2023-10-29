@@ -14,7 +14,9 @@ fn main() {
             commands::set_mic_mute_hotkey,
             commands::toggle_mic,
             commands::set_auto_launch,
-            commands::get_auto_launch
+            commands::get_auto_launch,
+            commands::set_mic_mute_audio_volume,
+            commands::get_mic_mute_audio_volume
         ])
         .setup(|app| {
             db::init_db(&app.package_info().name);
