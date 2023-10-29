@@ -19,6 +19,7 @@ const snakeBarText = ref("");
 const snakeBarOpen = ref(false);
 const snakeBarType = ref(SnakeBarType.error);
 const inputValue = ref("");
+var hotkeyIsBeingEdited = false;
 
 async function submit() {
   if (current_hotkey == inputValue.value) {
@@ -99,6 +100,27 @@ async function loadHotkey() {
   inputValue.value = current_hotkey;
 }
 
+function inputKeyDown(payload: KeyboardEvent) {
+  payload.preventDefault();
+  if (payload.repeat) return;
+  console.log(payload);
+  const key = payload.key;
+  if (!hotkeyIsBeingEdited) {
+    inputValue.value = "";
+
+    hotkeyIsBeingEdited = true;
+  }
+  inputValue.value += key;
+
+  if (key === "Control" || key === "Alt" || key === "Shift") {
+    inputValue.value += "+";
+  } else {
+  }
+}
+function inputKeyUp() {
+  hotkeyIsBeingEdited = false;
+}
+
 function setSnakeBar(msg: string, type: SnakeBarType) {
   snakeBarText.value = msg;
   snakeBarType.value = type;
@@ -119,9 +141,11 @@ onMounted(() => {
         v-model="inputValue"
         class="bg-transparent p-2 text-lg text-white focus:outline-none"
         placeholder="No active hotkey"
+        @keydown="inputKeyDown"
+        @keyup="inputKeyUp"
       />
       <button
-        class="bg-transparent p-2 text-center text-lg text-white hover:bg-neutral-900"
+        class="rounded-[inherit] bg-transparent p-2 text-center text-lg text-white hover:bg-neutral-900"
         @click="clear"
       >
         Clear
