@@ -121,14 +121,14 @@ onMounted(() => {
         placeholder="No active hotkey"
       />
       <button
-        class="bg-transparent p-2 text-center text-lg text-white shadow-white hover:shadow-xl"
+        class="bg-transparent p-2 text-center text-lg text-white hover:bg-neutral-900"
         @click="clear"
       >
         Clear
       </button>
     </div>
     <button
-      class="mt-4 rounded p-1 text-white ring-2 ring-fuchsia-700"
+      class="mt-4 rounded-lg bg-neutral-800 p-1 text-lg text-white ring-2 ring-fuchsia-700 hover:bg-neutral-900"
       @click="submit"
     >
       Save

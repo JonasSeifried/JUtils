@@ -4,7 +4,11 @@ import AutoStartSettingToggleComponent from "./settings/AutoStartSettingToggleCo
 
 <template>
   <div class="flex w-full flex-col items-center">
-    <h1 class="mt-10 text-center text-5xl font-bold text-white">Settings</h1>
+    <div class="mb-5 mt-10">
+      <h1 class="text-center text-5xl font-bold text-white">Settings</h1>
+      <p class="m-1 text-white">Customize Settings to suit your preferences</p>
+    </div>
+
     <div>
       <AutoStartSettingToggleComponent />
     </div>

@@ -52,17 +52,14 @@ function hotkey_pressed() {
 
 <template>
   <div class="flex w-full flex-col items-center">
-    <h1 class="mt-10 text-center text-5xl font-bold text-white">MicMute</h1>
-    <p class="m-1 text-white">Set a global hotkey to mute your default Mic</p>
-    <Hotkey
-      class="m-2 w-80"
-      @callback="hotkey_pressed"
-      :hotkey_name="HotkeyNames.MicMute"
-    />
-    <div>
+    <div class="mb-5 mt-10">
+      <h1 class="text-center text-5xl font-bold text-white">MicMute</h1>
+      <p class="m-1 text-white">Set a global hotkey to mute your default Mic</p>
+    </div>
+    <div class="mb-2 flex items-center">
       <label
         for="mic-mute-slider"
-        class="mb-0 mt-2 block font-medium text-white"
+        class="mr-2 block text-center font-medium text-white"
         >Volume: {{ micMuteSliderValueString }}</label
       >
       <input
@@ -71,10 +68,16 @@ function hotkey_pressed() {
         max="100"
         step="1"
         type="range"
+        class="h-2 cursor-pointer appearance-none rounded-lg bg-neutral-800 accent-fuchsia-700"
         v-model="micMuteSliderValue"
         @change="onMicMuteSliderChange"
       />
     </div>
+    <Hotkey
+      class="m-2 w-80"
+      @callback="hotkey_pressed"
+      :hotkey_name="HotkeyNames.MicMute"
+    />
   </div>
   <SnakeBar v-model:open="snakeBarOpen" :type="snakeBarType">
     {{ snakeBarText }}
