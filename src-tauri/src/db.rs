@@ -1,7 +1,7 @@
-use crate::{error::Error, hotkey::Hotkey};
+use crate::{error::Result, hotkey::Hotkey};
 use rusqlite::Connection;
 
-fn open_db() -> Result<Connection, Error> {
+fn open_db() -> Result<Connection> {
     Ok(Connection::open(".db")?)
 }
 
@@ -44,7 +44,7 @@ pub fn init_db(app_name: &str) {
     init_settings_table(&db_connection, app_name);
 }
 
-pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey, Error> {
+pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey> {
     let conn = open_db()?;
     let hotkey = conn.query_row(
         "SELECT * FROM hotkeys where name = ?1",
@@ -59,7 +59,7 @@ pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey, Error> {
     Ok(hotkey)
 }
 
-pub fn set_hotkey(hotkey: Hotkey) -> Result<(), Error> {
+pub fn set_hotkey(hotkey: Hotkey) -> Result<()> {
     let conn = open_db()?;
     conn.execute(
         "INSERT INTO hotkeys (name, keys)
@@ -73,7 +73,7 @@ pub fn set_hotkey(hotkey: Hotkey) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn toggle_mute_state() -> Result<bool, Error> {
+pub fn toggle_mute_state() -> Result<bool> {
     let conn = open_db()?;
     let current_state: bool =
         conn.query_row("Select mute_state from settings", (), |row| row.get(0))?;
@@ -84,7 +84,7 @@ pub fn toggle_mute_state() -> Result<bool, Error> {
     Ok(!current_state)
 }
 
-pub fn get_mic_mute_audio_volume() -> Result<f32, Error> {
+pub fn get_mic_mute_audio_volume() -> Result<f32> {
     let conn = open_db()?;
     Ok(
         conn.query_row("Select mic_mute_audio_volume from settings", (), |row| {
@@ -93,7 +93,7 @@ pub fn get_mic_mute_audio_volume() -> Result<f32, Error> {
     )
 }
 
-pub fn set_mic_mute_audio_volume(new_volume: f32) -> Result<(), Error> {
+pub fn set_mic_mute_audio_volume(new_volume: f32) -> Result<()> {
     let conn = open_db()?;
     conn.execute(
         "UPDATE settings SET mic_mute_audio_volume=?1 where id=1",
@@ -102,12 +102,12 @@ pub fn set_mic_mute_audio_volume(new_volume: f32) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn get_auto_launch() -> Result<bool, Error> {
+pub fn get_auto_launch() -> Result<bool> {
     let conn = open_db()?;
     Ok(conn.query_row("Select auto_launch from settings", (), |row| row.get(0))?)
 }
 
-pub fn set_auto_launch(new_state: bool) -> Result<(), Error> {
+pub fn set_auto_launch(new_state: bool) -> Result<()> {
     let conn = open_db()?;
     conn.execute(
         "UPDATE settings SET auto_launch=?1 where id=1",
@@ -116,7 +116,7 @@ pub fn set_auto_launch(new_state: bool) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn get_app_name() -> Result<String, Error> {
+pub fn get_app_name() -> Result<String> {
     let conn = open_db()?;
     Ok(conn.query_row("Select app_name from settings", (), |row| row.get(0))?)
 }

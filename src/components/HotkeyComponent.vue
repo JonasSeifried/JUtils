@@ -141,6 +141,7 @@ onMounted(() => {
         v-model="inputValue"
         class="bg-transparent p-2 text-lg text-white focus:outline-none"
         placeholder="No active hotkey"
+        spellcheck="false"
         @keydown="inputKeyDown"
         @keyup="inputKeyUp"
       />
