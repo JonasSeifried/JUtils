@@ -1,17 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
-
-use global_hotkey::{
-    hotkey::{Code, HotKey, Modifiers},
-    GlobalHotKeyManager,
-};
-
-type HotKeyId = u32;
+use hotkey::HotKeyManager;
+use tauri::Manager;
 
 mod commands;
 mod db;
@@ -20,7 +11,6 @@ mod features;
 mod hotkey;
 
 fn main() {
-    hotkey::testing(GlobalHotKeyManager::new().unwrap());
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             commands::fetch_mic_mute_hotkey,
@@ -31,11 +21,11 @@ fn main() {
             commands::set_mic_mute_audio_volume,
             commands::get_mic_mute_audio_volume
         ])
-        .setup(|app| {
+        .manage(HotKeyManager::new())
+        .setup(move |app| {
             db::init_db(&app.package_info().name);
             features::auto_launch::init().expect("Could not init auto_launch");
-            let shortcuts = Arc::new(Mutex::new(HashMap::<HotKeyId, HotKey>::new()));
-
+            hotkey::testing(app.handle().state::<HotKeyManager>().inner());
             Ok(())
         })
         .run(tauri::generate_context!())

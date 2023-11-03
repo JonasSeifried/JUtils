@@ -24,6 +24,9 @@ pub enum Error {
     #[error(transparent)]
     AudioPlayError(#[from] rodio::PlayError),
 
+    #[error(transparent)]
+    GlobalHotKeyError(#[from] global_hotkey::Error),
+
     #[error("{0}")]
     UnexpectedError(String),
 }
