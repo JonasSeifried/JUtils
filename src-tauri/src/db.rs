@@ -1,4 +1,4 @@
-use crate::{error::Result, hotkey::Hotkey};
+use crate::{error::Result, features::hotkey::Hotkey};
 use rusqlite::Connection;
 
 fn open_db() -> Result<Connection> {

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Component } from "vue";
-
 const props = defineProps<{
   content: Component;
 }>();

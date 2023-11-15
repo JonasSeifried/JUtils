@@ -1,14 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use hotkey::HotKeyManager;
+use features::hotkey::HotKeyManager;
 use tauri::Manager;
 
 mod commands;
 mod db;
 mod error;
 mod features;
-mod hotkey;
 
 fn main() {
     tauri::Builder::default()
@@ -25,7 +24,7 @@ fn main() {
         .setup(move |app| {
             db::init_db(&app.package_info().name);
             features::auto_launch::init().expect("Could not init auto_launch");
-            hotkey::testing(app.handle().state::<HotKeyManager>().inner());
+            features::hotkey::testing(app.handle().state::<HotKeyManager>().inner(), app);
             Ok(())
         })
         .run(tauri::generate_context!())

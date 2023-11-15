@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { register, unregister } from "@tauri-apps/api/globalShortcut";
-import SnakeBar from "./SnakeBar.vue";
+import SnackBar from "./SnackBar.vue";
 import { invoke } from "@tauri-apps/api";
 import { onMounted, ref } from "vue";
-import { SnakeBarType } from "../snake-bar-type";
+import { SnackBarType } from "../snack-bar-type";
 import { HotkeyNames } from "../hotkey-manager";
 
 const probs = defineProps<{
@@ -15,26 +15,35 @@ const emit = defineEmits<{
 
 var current_hotkey: string;
 
-const snakeBarText = ref("");
-const snakeBarOpen = ref(false);
-const snakeBarType = ref(SnakeBarType.error);
+const snackBarText = ref("");
+const snackBarOpen = ref(false);
+const snackBarType = ref(SnackBarType.error);
 const inputValue = ref("");
 var hotkeyIsBeingEdited = false;
 
 async function submit() {
   if (current_hotkey == inputValue.value) {
     if (current_hotkey.length == 0)
-      setSnakeBar("Hotkey already cleared", SnakeBarType.success);
+      setSnackBar("Hotkey already cleared", SnackBarType.success);
     else
-      setSnakeBar(
+      setSnackBar(
         `'${current_hotkey}' is already set as your hotkey`,
-        SnakeBarType.success,
+        SnackBarType.success,
       );
 
     return;
   }
-  setHotKey();
+
+  invoke("set_mic_mute_hotkey", { keys: inputValue.value })
+    .then(() => {
+      current_hotkey = inputValue.value;
+      setSnackBar(`${current_hotkey} registered!`, SnackBarType.success);
+    })
+    .catch((error) => {
+      setSnackBar(error as string, SnackBarType.error);
+    });
 }
+
 function clear() {
   inputValue.value = "";
 }
@@ -55,10 +64,10 @@ async function setHotKey() {
   }
   unregisterHotkey(oldHotkey);
   if (current_hotkey.length == 0) {
-    setSnakeBar("Hotkey cleared!", SnakeBarType.success);
+    setSnackBar("Hotkey cleared!", SnackBarType.success);
     return;
   }
-  setSnakeBar(`${current_hotkey} registered!`, SnakeBarType.success);
+  setSnackBar(`${current_hotkey} registered!`, SnackBarType.success);
 }
 
 async function registerHotkey(hotkey: string): Promise<boolean> {
@@ -66,7 +75,7 @@ async function registerHotkey(hotkey: string): Promise<boolean> {
     await register(hotkey, () => emit("callback"));
     return true;
   } catch (error) {
-    setSnakeBar(error as string, SnakeBarType.error);
+    setSnackBar(error as string, SnackBarType.error);
 
     console.log(error);
     return false;
@@ -77,7 +86,7 @@ async function unregisterHotkey(hotkey: string) {
   try {
     await unregister(hotkey);
   } catch (error) {
-    setSnakeBar(error as string, SnakeBarType.error);
+    setSnackBar(error as string, SnackBarType.error);
     console.error(error);
   }
 }
@@ -86,7 +95,7 @@ async function storeHotkey(hotkey: string): Promise<boolean> {
   await invoke(`set_${probs.hotkey_name}_hotkey`, {
     keys: hotkey,
   }).catch((error) => {
-    setSnakeBar("Could not save hotkey \n" + error, SnakeBarType.error);
+    setSnackBar("Could not save hotkey \n" + error, SnackBarType.error);
     console.error(error);
 
     return false;
@@ -121,14 +130,15 @@ function inputKeyUp() {
   hotkeyIsBeingEdited = false;
 }
 
-function setSnakeBar(msg: string, type: SnakeBarType) {
-  snakeBarText.value = msg;
-  snakeBarType.value = type;
-  snakeBarOpen.value = true;
+function setSnackBar(msg: string, type: SnackBarType = SnackBarType.error) {
+  snackBarText.value = msg;
+  snackBarType.value = type;
+  snackBarOpen.value = true;
 }
 
-onMounted(() => {
+onMounted(async () => {
   loadHotkey();
+  console.log("test");
 });
 </script>
 
@@ -159,8 +169,8 @@ onMounted(() => {
       Save
     </button>
 
-    <SnakeBar v-model:open="snakeBarOpen" :type="snakeBarType">
-      {{ snakeBarText }}
-    </SnakeBar>
+    <SnackBar v-model:open="snackBarOpen" :type="snackBarType">
+      {{ snackBarText }}
+    </SnackBar>
   </div>
 </template>

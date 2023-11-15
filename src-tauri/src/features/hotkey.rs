@@ -3,12 +3,13 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::error::Result;
+use crate::error::{Error, Result};
 
 use global_hotkey::{
     hotkey::{Code, HotKey, Modifiers},
     GlobalHotKeyEvent, GlobalHotKeyManager, HotKeyState,
 };
+use tauri::Manager;
 use winit::event_loop::{ControlFlow, EventLoopBuilder};
 
 type HotKeyId = u32;
@@ -33,6 +34,11 @@ impl HotKeyManager {
     }
 
     pub fn register_hotkey(&self, name: &str, keys: &str) -> Result<()> {
+        self.unregister_hotkey(name)?;
+        if keys.len() == 0 {
+            return Ok(());
+        }
+
         let hotkeys = parse_hotkey(keys)?;
         for hk in hotkeys.clone() {
             self.manager.register(hk)?;
@@ -48,6 +54,32 @@ impl HotKeyManager {
             .lock()
             .unwrap()
             .insert(name.into(), hotkeys.iter().map(|hk| hk.id()).collect());
+        Ok(())
+    }
+
+    fn unregister_hotkey(&self, name: &str) -> Result<()> {
+        if let Some(hotkey_ids) = self.required_hotkeys.lock().unwrap().get(name) {
+            let mut hotkeys: Vec<HotKey> = Vec::new();
+            for hk_id in hotkey_ids {
+                hotkeys.push(
+                    self.hotkeys
+                        .lock()
+                        .unwrap()
+                        .get(hk_id)
+                        .ok_or(Error::UnexpectedError(format!(
+                            "hotkeys should contain hotkey: {}",
+                            hk_id
+                        )))?
+                        .hotkey,
+                )
+            }
+            self.manager.unregister_all(&hotkeys)?;
+            self.required_hotkeys
+                .lock()
+                .unwrap()
+                .remove(name)
+                .expect("registed hotkeys should be containted in  required_hotkeys");
+        }
         Ok(())
     }
 }
@@ -70,8 +102,7 @@ pub struct Hotkey {
     pub keys: String,
 }
 
-pub fn testing(hotkey_manager: &HotKeyManager) {
-    hotkey_manager.register_hotkey("MicMute", "abc");
+pub fn testing(hotkey_manager: &HotKeyManager, app: &mut tauri::App) {
     let receiver = GlobalHotKeyEvent::receiver();
     let event_loop = EventLoopBuilder::new().build().unwrap();
 
@@ -98,7 +129,7 @@ pub fn testing(hotkey_manager: &HotKeyManager) {
                         .unwrap()
                         .push(registered_hotkey.hotkey.id());
 
-                    let required = hotkey_manager
+                    let all_pressed = hotkey_manager
                         .required_hotkeys
                         .lock()
                         .unwrap()
@@ -106,16 +137,17 @@ pub fn testing(hotkey_manager: &HotKeyManager) {
                         .expect("All hotkeys must be added to required_hotkeys")
                         .iter()
                         .all(|id| hotkey_manager.active_hotkeys.lock().unwrap().contains(id));
-
-                    match registered_hotkey.name.as_str() {
-                        MICMUTE => {
-                            if required {
-                                tauri::async_runtime::spawn(async {
-                                    crate::features::audio_manager::play_mute_sound(true).await
-                                });
-                            }
+                    if all_pressed {
+                        let res = match registered_hotkey.name.as_str() {
+                            MICMUTE => crate::commands::toggle_mic(),
+                            _ => Err(Error::UnexpectedError(format!(
+                                "Hotkey name {} did not match",
+                                registered_hotkey.name
+                            ))),
+                        };
+                        if let Err(err) = res {
+                            let _ = app.handle().emit_all("backend-error", &err);
                         }
-                        _ => println!("err"),
                     }
                 }
             }

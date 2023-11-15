@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import Hotkey from "./HotkeyComponent.vue";
-import SnakeBar from "./SnakeBar.vue";
+import SnackBar from "./SnackBar.vue";
 import { HotkeyNames } from "../hotkey-manager";
 import { invoke } from "@tauri-apps/api";
 import { computed, ref } from "vue";
-import { SnakeBarType } from "../snake-bar-type";
+import { SnackBarType } from "../snack-bar-type";
 
-const snakeBarText = ref("");
-const snakeBarOpen = ref(false);
-const snakeBarType = ref(SnakeBarType.error);
+const snackBarText = ref("");
+const snackBarOpen = ref(false);
+const snackBarType = ref(SnackBarType.error);
 const micMuteSliderValue = ref(50);
 loadMicMuteSilderValue();
 
@@ -21,14 +21,14 @@ function onMicMuteSliderChange(payload: Event) {
     volume: +(payload.target as HTMLInputElement).value,
   }).catch((err) => {
     console.error(err);
-    setSnakeBar(err);
+    setSnackBar(err);
   });
 }
 
 async function loadMicMuteSilderValue() {
   let res = await invoke("get_mic_mute_audio_volume").catch((err) => {
     console.error(err);
-    setSnakeBar(err);
+    setSnackBar(err);
     return;
   });
   console.log(`loaded Mic Mute Slider Value -> ${res}%`);
@@ -36,16 +36,16 @@ async function loadMicMuteSilderValue() {
   micMuteSliderValue.value = res as number;
 }
 
-function setSnakeBar(msg: string, type: SnakeBarType = SnakeBarType.error) {
-  snakeBarText.value = msg;
-  snakeBarType.value = type;
-  snakeBarOpen.value = true;
+function setSnackBar(msg: string, type: SnackBarType = SnackBarType.error) {
+  snackBarText.value = msg;
+  snackBarType.value = type;
+  snackBarOpen.value = true;
 }
 
 function hotkey_pressed() {
   invoke("toggle_mic").catch((err) => {
     console.error(err);
-    setSnakeBar(err);
+    setSnackBar(err);
   });
 }
 </script>
@@ -79,7 +79,7 @@ function hotkey_pressed() {
       :hotkey_name="HotkeyNames.MicMute"
     />
   </div>
-  <SnakeBar v-model:open="snakeBarOpen" :type="snakeBarType">
-    {{ snakeBarText }}
-  </SnakeBar>
+  <SnackBar v-model:open="snackBarOpen" :type="snackBarType">
+    {{ snackBarText }}
+  </SnackBar>
 </template>

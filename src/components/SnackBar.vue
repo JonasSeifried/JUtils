@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed, watch } from "vue";
-import { SnakeBarType } from "../snake-bar-type";
+import { SnackBarType } from "../snack-bar-type";
 
 const props = defineProps<{
-  type: SnakeBarType;
+  type: SnackBarType;
   open: boolean;
   timeout?: number;
 }>();
@@ -16,9 +16,9 @@ var currentFadeOut: NodeJS.Timeout | undefined;
 
 const color = computed(() => {
   switch (props.type) {
-    case SnakeBarType.error:
+    case SnackBarType.error:
       return "red-400";
-    case SnakeBarType.success:
+    case SnackBarType.success:
       return "green-500";
     default:
       return "white";
