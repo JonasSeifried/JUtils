@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, MutexGuard},
 };
 
 use crate::error::{Error, Result};
@@ -33,8 +33,9 @@ impl HotKeyManager {
         }
     }
 
-    pub fn register_hotkey(&self, name: &str, keys: &str) -> Result<()> {
-        self.unregister_hotkey(name)?;
+    pub fn register_hotkey(&self, name: &str, keys: Vec<&str>) -> Result<()> {
+        let mut required_hotkeys = self.required_hotkeys.lock().unwrap();
+        self.unregister_hotkey(name, &mut required_hotkeys)?;
         if keys.len() == 0 {
             return Ok(());
         }
@@ -50,16 +51,17 @@ impl HotKeyManager {
                 },
             );
         }
-        self.required_hotkeys
-            .lock()
-            .unwrap()
-            .insert(name.into(), hotkeys.iter().map(|hk| hk.id()).collect());
+        required_hotkeys.insert(name.into(), hotkeys.iter().map(|hk| hk.id()).collect());
         Ok(())
     }
 
-    fn unregister_hotkey(&self, name: &str) -> Result<()> {
-        if let Some(hotkey_ids) = self.required_hotkeys.lock().unwrap().get(name) {
-            let mut hotkeys: Vec<HotKey> = Vec::new();
+    fn unregister_hotkey(
+        &self,
+        name: &str,
+        required_hotkeys: &mut MutexGuard<'_, HashMap<String, Vec<HotKeyId>>>,
+    ) -> Result<()> {
+        let mut hotkeys: Vec<HotKey> = Vec::new();
+        if let Some(hotkey_ids) = required_hotkeys.get(name) {
             for hk_id in hotkey_ids {
                 hotkeys.push(
                     self.hotkeys
@@ -73,18 +75,19 @@ impl HotKeyManager {
                         .hotkey,
                 )
             }
-            self.manager.unregister_all(&hotkeys)?;
-            self.required_hotkeys
-                .lock()
-                .unwrap()
-                .remove(name)
-                .expect("registed hotkeys should be containted in  required_hotkeys");
         }
+        if hotkeys.len() == 0 {
+            return Ok(());
+        }
+        self.manager.unregister_all(&hotkeys)?;
+        required_hotkeys
+            .remove(name)
+            .expect("registed hotkeys should be containted in required_hotkeys");
         Ok(())
     }
 }
 
-fn parse_hotkey(keys: &str) -> Result<Vec<HotKey>> {
+fn parse_hotkey(keys: Vec<&str>) -> Result<Vec<HotKey>> {
     let hotkey = HotKey::new(Some(Modifiers::SHIFT), Code::KeyD);
     let hotkey2 = HotKey::new(Some(Modifiers::SHIFT), Code::KeyF);
     Ok(vec![hotkey, hotkey2])
