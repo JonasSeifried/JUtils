@@ -29,6 +29,9 @@ pub enum Error {
 
     #[error("{0}")]
     UnexpectedError(String),
+
+    #[error("'{0}' is not an accepted key")]
+    UnacceptedKey(String),
 }
 
 impl serde::Serialize for Error {

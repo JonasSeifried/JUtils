@@ -41,13 +41,6 @@ function setSnackBar(msg: string, type: SnackBarType = SnackBarType.error) {
   snackBarType.value = type;
   snackBarOpen.value = true;
 }
-
-function hotkey_pressed() {
-  invoke("toggle_mic").catch((err) => {
-    console.error(err);
-    setSnackBar(err);
-  });
-}
 </script>
 
 <template>
@@ -73,11 +66,7 @@ function hotkey_pressed() {
         @change="onMicMuteSliderChange"
       />
     </div>
-    <Hotkey
-      class="m-2 w-80"
-      @callback="hotkey_pressed"
-      :hotkey_name="HotkeyNames.MicMute"
-    />
+    <Hotkey class="m-2 w-80" :hotkey_name="HotkeyNames.MicMute" />
   </div>
   <SnackBar v-model:open="snackBarOpen" :type="snackBarType">
     {{ snackBarText }}

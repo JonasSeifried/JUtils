@@ -30,9 +30,12 @@ watch(
   (newState) => {
     if (newState) {
       clearTimeout(currentFadeOut);
-      currentFadeOut = setTimeout(() => {
-        emit("update:open", false);
-      }, props.timeout ?? 2500);
+      currentFadeOut = setTimeout(
+        () => {
+          emit("update:open", false);
+        },
+        props.timeout ?? props.type == SnackBarType.error ? 5000 : 2500,
+      );
     }
   },
 );

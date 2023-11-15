@@ -15,13 +15,14 @@ pub fn fetch_mic_mute_hotkey() -> Result<String> {
 
 #[tauri::command]
 pub fn set_mic_mute_hotkey(
-    keys: &str,
+    keys: Vec<&str>,
     hotkey_manager: tauri::State<crate::features::hotkey::HotKeyManager>,
 ) -> Result<()> {
+    println!("{:?}", keys);
     hotkey_manager.register_hotkey(MICMUTE, keys)?;
     db::set_hotkey(Hotkey {
         name: MICMUTE.to_string(),
-        keys: keys.to_string(),
+        keys: "a".to_string(), // TODO - todo note
     })
 }
 
