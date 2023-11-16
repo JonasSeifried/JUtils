@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use features::hotkey::HotKeyManager;
-use tauri::Manager;
+use tauri::{Manager, SystemTray};
 
 mod commands;
 mod db;
@@ -20,6 +20,7 @@ fn main() {
             commands::set_mic_mute_audio_volume,
             commands::get_mic_mute_audio_volume
         ])
+        .system_tray(system_tray())
         .manage(HotKeyManager::new())
         .setup(move |app| {
             db::init_db(&app.package_info().name);
@@ -29,4 +30,10 @@ fn main() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn system_tray() -> SystemTray {
+    let tray = SystemTray::new();
+
+    tray
 }
