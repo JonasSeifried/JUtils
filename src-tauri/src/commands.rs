@@ -9,20 +9,19 @@ use crate::{
 };
 
 #[tauri::command]
-pub fn fetch_mic_mute_hotkey() -> Result<String> {
+pub fn fetch_mic_mute_hotkey() -> Result<Vec<String>> {
     Ok(db::fetch_hotkey(MICMUTE)?.keys)
 }
 
 #[tauri::command]
 pub fn set_mic_mute_hotkey(
-    keys: Vec<&str>,
+    keys: Vec<String>,
     hotkey_manager: tauri::State<crate::features::hotkey::HotKeyManager>,
 ) -> Result<()> {
-    println!("{:?}", keys);
-    hotkey_manager.register_hotkey(MICMUTE, keys)?;
+    hotkey_manager.register_hotkey(MICMUTE, keys.clone())?;
     db::set_hotkey(Hotkey {
         name: MICMUTE.to_string(),
-        keys: "a".to_string(), // TODO - todo note
+        keys: keys,
     })
 }
 

@@ -6,7 +6,7 @@ use std::{
 use crate::error::{Error, Result};
 
 use global_hotkey::{
-    hotkey::{Code, HotKey, Modifiers},
+    hotkey::{Code, HotKey as GHotkey, Modifiers},
     GlobalHotKeyEvent, GlobalHotKeyManager, HotKeyState,
 };
 use tauri::Manager;
@@ -33,7 +33,7 @@ impl HotKeyManager {
         }
     }
 
-    pub fn register_hotkey(&self, name: &str, keys: Vec<&str>) -> Result<()> {
+    pub fn register_hotkey(&self, name: &str, keys: Vec<String>) -> Result<()> {
         let mut required_hotkeys = self.required_hotkeys.lock().unwrap();
         self.unregister_hotkey(name, &mut required_hotkeys)?;
         if keys.len() == 0 {
@@ -60,7 +60,7 @@ impl HotKeyManager {
         name: &str,
         required_hotkeys: &mut MutexGuard<'_, HashMap<String, Vec<HotKeyId>>>,
     ) -> Result<()> {
-        let mut hotkeys: Vec<HotKey> = Vec::new();
+        let mut hotkeys: Vec<GHotkey> = Vec::new();
         if let Some(hotkey_ids) = required_hotkeys.get(name) {
             for hk_id in hotkey_ids {
                 hotkeys.push(
@@ -87,12 +87,12 @@ impl HotKeyManager {
     }
 }
 
-fn parse_hotkey(keys: Vec<&str>) -> Result<Vec<HotKey>> {
-    let mut hotkeys: Vec<HotKey> = Vec::new();
+fn parse_hotkey(keys: Vec<String>) -> Result<Vec<GHotkey>> {
+    let mut hotkeys: Vec<GHotkey> = Vec::new();
     let mut codes: Vec<Code> = Vec::new();
     let mut mods = Modifiers::empty();
     for key in keys {
-        match key {
+        match key.as_str() {
             "ControlLeft" | "ControlRight" => mods.set(Modifiers::CONTROL, true),
             "ShiftLeft" | "ShiftRight" => mods.set(Modifiers::SHIFT, true),
             "MetaLeft" | "MetaRight" => mods.set(Modifiers::META, true),
@@ -100,13 +100,13 @@ fn parse_hotkey(keys: Vec<&str>) -> Result<Vec<HotKey>> {
             "AltRight" => mods.set(Modifiers::ALT_GRAPH, true),
             "CapsLock" => mods.set(Modifiers::CAPS_LOCK, true),
             "Command" | "Super" => mods.set(Modifiers::SUPER, true),
-            _ => codes.push(parse_key(key)?),
+            _ => codes.push(parse_key(key.as_str())?),
         };
     }
     for code in codes {
         match mods.is_empty() {
-            true => hotkeys.push(HotKey::new(None, code)),
-            false => hotkeys.push(HotKey::new(Some(mods), code)),
+            true => hotkeys.push(GHotkey::new(None, code)),
+            false => hotkeys.push(GHotkey::new(Some(mods), code)),
         }
     }
     Ok(hotkeys)
@@ -115,16 +115,21 @@ fn parse_hotkey(keys: Vec<&str>) -> Result<Vec<HotKey>> {
 #[derive(Debug)]
 pub struct RegisteredHotkey {
     pub name: String,
-    pub hotkey: HotKey,
+    pub hotkey: GHotkey,
 }
 
 #[derive(Debug)]
 pub struct Hotkey {
     pub name: String,
-    pub keys: String,
+    pub keys: Vec<String>,
 }
 
-pub fn testing(hotkey_manager: &HotKeyManager, app: &mut tauri::App) {
+pub fn init(hotkey_manager: &HotKeyManager, app: &mut tauri::App) {
+    load_hotkeys(hotkey_manager);
+    event_loop(hotkey_manager, app);
+}
+
+fn event_loop(hotkey_manager: &HotKeyManager, app: &mut tauri::App) {
     let receiver = GlobalHotKeyEvent::receiver();
     let event_loop = EventLoopBuilder::new().build().unwrap();
 
@@ -177,6 +182,20 @@ pub fn testing(hotkey_manager: &HotKeyManager, app: &mut tauri::App) {
         .expect("Failed to start GlobalHotkey event loop");
 }
 
+fn load_hotkeys(hotkey_manager: &HotKeyManager) {
+    load_hotkey(hotkey_manager, MICMUTE)
+}
+
+fn load_hotkey(hotkey_manager: &HotKeyManager, name: &str) {
+    hotkey_manager
+        .register_hotkey(
+            name,
+            crate::db::fetch_hotkey(name)
+                .expect(format!("Failed to load hotkey {}", name).as_str())
+                .keys,
+        )
+        .expect(format!("Failed to register hotkey {}", name).as_str())
+}
 fn parse_key(key: &str) -> Result<Code> {
     use Code::*;
     match key.to_uppercase().as_str() {

@@ -15,6 +15,15 @@ fn init_hotkey_table(db_connection: &Connection) {
             (),
         )
         .expect("Failed to create hotkey Table");
+    db_connection
+        .execute(
+            "CREATE TABLE IF NOT EXISTS hotkeys (
+            name TEXT PRIMARY KEY,
+            keys TEXT NOT NULL
+    )",
+            (),
+        )
+        .expect("Failed to create hotkey Table");
 }
 
 fn init_settings_table(db_connection: &Connection, app_name: &str) {
@@ -51,11 +60,16 @@ pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey> {
         (hotkey_name,),
         |row| {
             Ok(Hotkey {
-                name: row.get(0)?,
-                keys: row.get(1)?,
+                name: row.get::<usize, String>(0)?,
+                keys: row
+                    .get::<usize, String>(1)?
+                    .split("&&")
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>(),
             })
         },
     )?;
+    println!("Debug: Fetched Hotkey {} -> {:?}", hotkey.name, hotkey.keys);
     Ok(hotkey)
 }
 
@@ -66,9 +80,9 @@ pub fn set_hotkey(hotkey: Hotkey) -> Result<()> {
         VALUES(?1, ?2) 
         ON CONFLICT(name) 
         DO UPDATE SET keys=?2;",
-        (&hotkey.name, &hotkey.keys),
+        (&hotkey.name, &hotkey.keys.join("&&")),
     )?;
-    println!("Debug: Set hotkey {} -> {}", hotkey.name, hotkey.keys);
+    println!("Debug: Set hotkey {} -> {:?}", hotkey.name, hotkey.keys);
 
     Ok(())
 }

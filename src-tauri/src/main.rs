@@ -24,7 +24,7 @@ fn main() {
         .setup(move |app| {
             db::init_db(&app.package_info().name);
             features::auto_launch::init().expect("Could not init auto_launch");
-            features::hotkey::testing(app.handle().state::<HotKeyManager>().inner(), app);
+            features::hotkey::init(app.handle().state::<HotKeyManager>().inner(), app);
             Ok(())
         })
         .run(tauri::generate_context!())
