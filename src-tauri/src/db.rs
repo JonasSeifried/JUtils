@@ -1,4 +1,7 @@
-use crate::{error::Result, features::hotkey::Hotkey};
+use crate::{
+    error::Result,
+    features::hotkey::{Hotkey, MICMUTE},
+};
 use rusqlite::Connection;
 
 fn open_db() -> Result<Connection> {
@@ -17,13 +20,10 @@ fn init_hotkey_table(db_connection: &Connection) {
         .expect("Failed to create hotkey Table");
     db_connection
         .execute(
-            "CREATE TABLE IF NOT EXISTS hotkeys (
-            name TEXT PRIMARY KEY,
-            keys TEXT NOT NULL
-    )",
-            (),
+            "INSERT OR IGNORE INTO hotkeys(name, keys) VALUES(?1, ?2)",
+            (MICMUTE, ""),
         )
-        .expect("Failed to create hotkey Table");
+        .expect("Insert or ignore settings");
 }
 
 fn init_settings_table(db_connection: &Connection, app_name: &str) {
@@ -65,6 +65,7 @@ pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey> {
                     .get::<usize, String>(1)?
                     .split("&&")
                     .map(|s| s.to_string())
+                    .filter(|s| s.len() != 0)
                     .collect::<Vec<String>>(),
             })
         },
