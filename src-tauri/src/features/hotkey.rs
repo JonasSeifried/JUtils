@@ -1,49 +1,44 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex, MutexGuard},
-};
-
 use crate::error::{Error, Result};
+use std::{collections::HashMap, sync::Arc};
 
 use global_hotkey::{
     hotkey::{Code, HotKey as GHotkey, Modifiers},
     GlobalHotKeyEvent, GlobalHotKeyManager, HotKeyState,
 };
-use tauri::Manager;
-use winit::event_loop::{ControlFlow, EventLoopBuilder};
 
 type HotKeyId = u32;
 
 pub const MICMUTE: &str = "MicMute";
 
 pub struct HotKeyManager {
-    manager: GlobalHotKeyManager,
-    hotkeys: Arc<Mutex<HashMap<HotKeyId, RegisteredHotkey>>>,
-    required_hotkeys: Arc<Mutex<HashMap<String, Vec<HotKeyId>>>>,
-    active_hotkeys: Arc<Mutex<Vec<HotKeyId>>>,
+    pub manager: GlobalHotKeyManager,
+    hotkeys: HashMap<HotKeyId, RegisteredHotkey>,
+    required_hotkeys: HashMap<String, Vec<HotKeyId>>,
+    active_hotkeys: Vec<HotKeyId>,
 }
+
+pub struct HotkeyState(pub Arc<tauri::async_runtime::Mutex<HotKeyManager>>);
 
 impl HotKeyManager {
     pub fn new() -> Self {
         HotKeyManager {
             manager: GlobalHotKeyManager::new().expect("Failed to init GlobalHotKeyManager"),
-            hotkeys: Arc::new(Mutex::new(HashMap::<HotKeyId, RegisteredHotkey>::new())),
-            required_hotkeys: Arc::new(Mutex::new(HashMap::<String, Vec<HotKeyId>>::new())),
-            active_hotkeys: Arc::new(Mutex::new(Vec::<HotKeyId>::new())),
+            hotkeys: HashMap::<HotKeyId, RegisteredHotkey>::new(),
+            required_hotkeys: HashMap::<String, Vec<HotKeyId>>::new(),
+            active_hotkeys: Vec::<HotKeyId>::new(),
         }
     }
 
-    pub fn register_hotkey(&self, name: &str, keys: Vec<String>) -> Result<()> {
-        let mut required_hotkeys = self.required_hotkeys.lock().unwrap();
-        self.unregister_hotkey(name, &mut required_hotkeys)?;
+    pub fn register_hotkey(&mut self, name: &str, keys: Vec<String>) -> Result<()> {
+        self.unregister_hotkey(name)?;
         if keys.len() == 0 {
             return Ok(());
         }
-
         let hotkeys = parse_hotkey(keys)?;
         for hk in hotkeys.clone() {
+            let _ = self.manager.unregister(hk);
             self.manager.register(hk)?;
-            self.hotkeys.lock().unwrap().insert(
+            self.hotkeys.insert(
                 hk.id(),
                 RegisteredHotkey {
                     name: name.into(),
@@ -51,22 +46,17 @@ impl HotKeyManager {
                 },
             );
         }
-        required_hotkeys.insert(name.into(), hotkeys.iter().map(|hk| hk.id()).collect());
+        self.required_hotkeys
+            .insert(name.into(), hotkeys.iter().map(|hk| hk.id()).collect());
         Ok(())
     }
 
-    fn unregister_hotkey(
-        &self,
-        name: &str,
-        required_hotkeys: &mut MutexGuard<'_, HashMap<String, Vec<HotKeyId>>>,
-    ) -> Result<()> {
+    fn unregister_hotkey(&mut self, name: &str) -> Result<()> {
         let mut hotkeys: Vec<GHotkey> = Vec::new();
-        if let Some(hotkey_ids) = required_hotkeys.get(name) {
+        if let Some(hotkey_ids) = self.required_hotkeys.get(name) {
             for hk_id in hotkey_ids {
                 hotkeys.push(
                     self.hotkeys
-                        .lock()
-                        .unwrap()
                         .get(hk_id)
                         .ok_or(Error::UnexpectedError(format!(
                             "hotkeys should contain hotkey: {}",
@@ -80,7 +70,7 @@ impl HotKeyManager {
             return Ok(());
         }
         self.manager.unregister_all(&hotkeys)?;
-        required_hotkeys
+        self.required_hotkeys
             .remove(name)
             .expect("registed hotkeys should be containted in required_hotkeys");
         Ok(())
@@ -112,7 +102,7 @@ fn parse_hotkey(keys: Vec<String>) -> Result<Vec<GHotkey>> {
     Ok(hotkeys)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RegisteredHotkey {
     pub name: String,
     pub hotkey: GHotkey,
@@ -124,13 +114,86 @@ pub struct Hotkey {
     pub keys: Vec<String>,
 }
 
-pub fn init(hotkey_manager: &HotKeyManager, app: &mut tauri::App) {
-    load_hotkeys(hotkey_manager);
-    event_loop(hotkey_manager, app);
+pub fn init(hotkey_manager: Arc<tauri::async_runtime::Mutex<HotKeyManager>>) {
+    load_hotkeys(&hotkey_manager);
+    tauri::async_runtime::spawn(async move {
+        event_loop(hotkey_manager).await;
+    });
 }
 
-fn event_loop(hotkey_manager: &HotKeyManager, app: &mut tauri::App) {
+async fn event_loop(hotkey_manager_mutex: Arc<tauri::async_runtime::Mutex<HotKeyManager>>) {
     let receiver = GlobalHotKeyEvent::receiver();
+    loop {
+        if let Ok(event) = receiver.recv() {
+            let mut hotkey_manager = hotkey_manager_mutex.lock().await;
+
+            if let Some(registered_hotkey) = hotkey_manager.hotkeys.get(&event.id).cloned() {
+                if event.state == HotKeyState::Released {
+                    hotkey_manager
+                        .active_hotkeys
+                        .retain(|id| id != &registered_hotkey.hotkey.id());
+                    continue;
+                }
+                hotkey_manager
+                    .active_hotkeys
+                    .push(registered_hotkey.hotkey.id());
+
+                let all_pressed = hotkey_manager
+                    .required_hotkeys
+                    .get(&registered_hotkey.name)
+                    .expect("All hotkeys must be added to required_hotkeys")
+                    .iter()
+                    .all(|id| hotkey_manager.active_hotkeys.contains(id));
+                if all_pressed {
+                    let _ = match registered_hotkey.name.as_str() {
+                        MICMUTE => crate::commands::toggle_mic(),
+                        _ => Err(Error::UnexpectedError(format!(
+                            "Hotkey name {} did not match",
+                            registered_hotkey.name
+                        ))),
+                    };
+                }
+            }
+        }
+    }
+
+    /* GlobalHotKeyEvent::set_event_handler(Some(move |e: GlobalHotKeyEvent| {
+        if let Some(registered_hotkey) = hotkey_manager.hotkeys.lock().unwrap().get(&e.id) {
+            if e.state == HotKeyState::Released {
+                hotkey_manager
+                    .active_hotkeys
+                    .lock()
+                    .unwrap()
+                    .retain(|id| id != &registered_hotkey.hotkey.id());
+                return;
+            }
+
+            hotkey_manager
+                .active_hotkeys
+                .lock()
+                .unwrap()
+                .push(registered_hotkey.hotkey.id());
+
+            let all_pressed = hotkey_manager
+                .required_hotkeys
+                .lock()
+                .unwrap()
+                .get(&registered_hotkey.name)
+                .expect("All hotkeys must be added to required_hotkeys")
+                .iter()
+                .all(|id| hotkey_manager.active_hotkeys.lock().unwrap().contains(id));
+            if all_pressed {
+                match registered_hotkey.name.as_str() {
+                    MICMUTE => crate::commands::toggle_mic(),
+                    _ => Err(Error::UnexpectedError(format!(
+                        "Hotkey name {} did not match",
+                        registered_hotkey.name
+                    ))),
+                };
+            }
+        }
+    })) */
+    /*     let receiver = GlobalHotKeyEvent::receiver();
     let event_loop = EventLoopBuilder::new().build().unwrap();
 
     event_loop
@@ -179,15 +242,17 @@ fn event_loop(hotkey_manager: &HotKeyManager, app: &mut tauri::App) {
                 }
             }
         })
-        .expect("Failed to start GlobalHotkey event loop");
+        .expect("Failed to start GlobalHotkey event loop"); */
 }
 
-fn load_hotkeys(hotkey_manager: &HotKeyManager) {
+fn load_hotkeys(hotkey_manager: &tauri::async_runtime::Mutex<HotKeyManager>) {
     load_hotkey(hotkey_manager, MICMUTE)
 }
 
-fn load_hotkey(hotkey_manager: &HotKeyManager, name: &str) {
+fn load_hotkey(hotkey_manager: &tauri::async_runtime::Mutex<HotKeyManager>, name: &str) {
+    println!("Loading {}", name);
     hotkey_manager
+        .blocking_lock()
         .register_hotkey(
             name,
             crate::db::fetch_hotkey(name)
@@ -196,6 +261,7 @@ fn load_hotkey(hotkey_manager: &HotKeyManager, name: &str) {
         )
         .expect(format!("Failed to register hotkey {}", name).as_str())
 }
+
 fn parse_key(key: &str) -> Result<Code> {
     use Code::*;
     match key.to_uppercase().as_str() {

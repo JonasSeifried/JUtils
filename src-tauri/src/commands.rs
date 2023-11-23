@@ -16,9 +16,12 @@ pub fn fetch_mic_mute_hotkey() -> Result<Vec<String>> {
 #[tauri::command]
 pub fn set_mic_mute_hotkey(
     keys: Vec<String>,
-    hotkey_manager: tauri::State<crate::features::hotkey::HotKeyManager>,
+    hotkey_state: tauri::State<'_, crate::features::hotkey::HotkeyState>,
 ) -> Result<()> {
-    hotkey_manager.register_hotkey(MICMUTE, keys.clone())?;
+    hotkey_state
+        .0
+        .blocking_lock()
+        .register_hotkey(MICMUTE, keys.clone())?;
     db::set_hotkey(Hotkey {
         name: MICMUTE.to_string(),
         keys: keys,

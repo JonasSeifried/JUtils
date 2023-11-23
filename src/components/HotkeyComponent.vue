@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SnackBar from "./SnackBar.vue";
 import { invoke } from "@tauri-apps/api";
-import { computed, ref, Ref } from "vue";
+import { computed, onMounted, ref, Ref } from "vue";
 import { SnackBarType } from "../snack-bar-type";
 import { HotkeyNames } from "../hotkey-manager";
 
@@ -39,6 +39,7 @@ async function submit() {
       setSnackBar(msg, SnackBarType.success);
     })
     .catch((error) => {
+      console.log(error);
       setSnackBar(error as string, SnackBarType.error);
     });
 }
@@ -77,6 +78,20 @@ function setSnackBar(msg: string, type: SnackBarType = SnackBarType.error) {
   snackBarType.value = type;
   snackBarOpen.value = true;
 }
+
+onMounted(() => {
+  invoke<[string]>(`fetch_${probs.hotkey_name}_hotkey`)
+    .then((hotkey: [string]) => {
+      console.log("loaded: " + hotkey);
+      for (const key of hotkey) {
+        keys.value.set(key, key);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      setSnackBar(err as string, SnackBarType.error);
+    });
+});
 </script>
 
 <template>
