@@ -5,7 +5,14 @@ use crate::{
 use rusqlite::Connection;
 
 fn open_db() -> Result<Connection> {
-    Ok(Connection::open(".db")?)
+    let mut path = app_dirs2::app_root(app_dirs2::AppDataType::UserData, &crate::APP_INFO)?;
+    #[cfg(debug_assertions)]
+    {
+        path.clear();
+    }
+
+    path.push(".db");
+    Ok(Connection::open(path)?)
 }
 
 fn init_hotkey_table(db_connection: &Connection) {
@@ -17,21 +24,21 @@ fn init_hotkey_table(db_connection: &Connection) {
         )",
             (),
         )
-        .expect("Failed to create hotkey Table");
+        .expect("Failed to create hotkeys Table");
     db_connection
         .execute(
             "INSERT OR IGNORE INTO hotkeys(name, keys) VALUES(?1, ?2)",
             (MICMUTE, ""),
         )
         .expect("Insert or ignore settings");
+    println!("Debug: Created hotkeys table");
 }
 
-fn init_settings_table(db_connection: &Connection, app_name: &str) {
+fn init_settings_table(db_connection: &Connection) {
     db_connection
         .execute(
             "CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY,
-            app_name String,
             auto_launch BOOL,
             mute_state BOOL,
             mic_mute_audio_volume REAL
@@ -41,16 +48,18 @@ fn init_settings_table(db_connection: &Connection, app_name: &str) {
         .expect("Failed to create settings Table");
     db_connection
         .execute(
-            "INSERT OR IGNORE INTO settings(id, app_name, auto_launch, mute_state, mic_mute_audio_volume) VALUES(?1, ?2, ?3, ?4, ?5)",
-            (1, app_name, true, false, 0.1),
+            "INSERT OR IGNORE INTO settings(id, auto_launch, mute_state, mic_mute_audio_volume) VALUES(?1, ?2, ?3, ?4)",
+            (1, true, false, 0.1),
         )
         .expect("Insert or ignore settings");
+    println!("Debug: Created settings table");
 }
 
-pub fn init_db(app_name: &str) {
+pub fn init_db() {
     let db_connection = open_db().expect("Failed to connect to database");
     init_hotkey_table(&db_connection);
-    init_settings_table(&db_connection, app_name);
+    init_settings_table(&db_connection);
+    println!("Debug: Database initialized");
 }
 
 pub fn fetch_hotkey(hotkey_name: &str) -> Result<Hotkey> {
@@ -115,23 +124,4 @@ pub fn set_mic_mute_audio_volume(new_volume: f32) -> Result<()> {
         (new_volume,),
     )?;
     Ok(())
-}
-
-pub fn get_auto_launch() -> Result<bool> {
-    let conn = open_db()?;
-    Ok(conn.query_row("Select auto_launch from settings", (), |row| row.get(0))?)
-}
-
-pub fn set_auto_launch(new_state: bool) -> Result<()> {
-    let conn = open_db()?;
-    conn.execute(
-        "UPDATE settings SET auto_launch=?1 where id=1",
-        (new_state,),
-    )?;
-    Ok(())
-}
-
-pub fn get_app_name() -> Result<String> {
-    let conn = open_db()?;
-    Ok(conn.query_row("Select app_name from settings", (), |row| row.get(0))?)
 }

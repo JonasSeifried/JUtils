@@ -13,7 +13,7 @@ pub enum Error {
     IOError(#[from] std::io::Error),
 
     #[error(transparent)]
-    AutoLaunchError(#[from] auto_launch::Error),
+    AutoLaunchError(#[from] tauri_plugin_autostart::Error),
 
     #[error(transparent)]
     AudioStreamError(#[from] rodio::StreamError),
@@ -26,6 +26,9 @@ pub enum Error {
 
     #[error(transparent)]
     GlobalHotKeyError(#[from] global_hotkey::Error),
+
+    #[error(transparent)]
+    AppDirsError(#[from] app_dirs2::AppDirsError),
 
     #[error("{0}")]
     UnexpectedError(String),

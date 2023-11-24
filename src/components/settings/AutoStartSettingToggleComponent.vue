@@ -1,23 +1,26 @@
 <script setup lang="ts">
-import { invoke } from "@tauri-apps/api";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import ToggleComponent from "../ToggleComponent.vue";
+import { enable, isEnabled, disable } from "tauri-plugin-autostart-api";
 
 const initValue = ref(false);
 const isFetching = ref(true);
 
-invoke("get_auto_launch").then((value) => {
-  initValue.value = value as boolean;
+async function autoStartToggle(newValue: boolean) {
+  if (newValue == (await isEnabled())) {
+    return;
+  } else if (newValue) {
+    await enable();
+  } else {
+    await disable();
+  }
+  console.log(`autoStart -> ${newValue}`);
+}
+
+onMounted(async () => {
+  initValue.value = await isEnabled();
   isFetching.value = false;
 });
-
-function autoStartToggle(newValue: boolean) {
-  setAutoLaunch(newValue);
-}
-
-function setAutoLaunch(newValue: boolean) {
-  invoke("set_auto_launch", { newState: newValue });
-}
 </script>
 
 <template>
@@ -30,6 +33,6 @@ function setAutoLaunch(newValue: boolean) {
       :init-value="initValue"
       class="m-5"
     />
-    <svg v-else class="animate-spin" />
+    <svg v-else class="animate-spin"></svg>
   </div>
 </template>

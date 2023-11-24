@@ -24,11 +24,11 @@ tauri = { version = "1.5.1", features = [
     "global-shortcut-all",
     "shell-open",
 ] }
+tauri-plugin-autostart = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 global-hotkey = "0.4.0"
-winit = "0.29.3"
 rusqlite = { version = "0.30.0", features = ["bundled"] }
-auto-launch = "0.5.0"
 rodio = "0.17.3"
+app_dirs2 = "2.5.5"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.52.0", features = [

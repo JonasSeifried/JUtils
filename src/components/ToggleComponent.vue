@@ -14,8 +14,6 @@ const emit = defineEmits<{
 const checked = ref(false);
 
 function toggle(event: Event) {
-  console.log("checked=" + checked.value);
-
   emit("toggle", (event.target as HTMLInputElement)?.checked);
 }
 
