@@ -36,14 +36,17 @@ fn main() {
             commands::set_mic_mute_hotkey,
             commands::toggle_mic,
             commands::set_mic_mute_audio_volume,
-            commands::get_mic_mute_audio_volume
+            commands::get_mic_mute_audio_volume,
+            commands::fetch_start_minimized_state,
+            commands::set_start_minimized_state,
         ])
         .system_tray(system_tray())
         .on_system_tray_event(handle_tray_events)
         .manage(hotkey_state)
-        .setup(move |_app| {
+        .setup(move |app| {
             db::init_db();
             features::hotkey::init(hotkey_manager);
+            hide_on_startup(&app.app_handle());
             Ok(())
         })
         .run(tauri::generate_context!())
@@ -90,4 +93,11 @@ fn show_window(show: bool, app_handle: &AppHandle) {
         .get_item(VISABILITY_TRAY_ID)
         .set_title(if show { "Hide" } else { "Show" })
         .unwrap();
+}
+
+fn hide_on_startup(app_handle: &AppHandle) {
+    match db::fetch_start_minimized_state() {
+        Ok(start_minimized_state) => show_window(!start_minimized_state, app_handle),
+        Err(error) => println!("Failed to fetch start_minimized_state {error}"),
+    }
 }

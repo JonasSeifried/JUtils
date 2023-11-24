@@ -40,6 +40,7 @@ fn init_settings_table(db_connection: &Connection) {
             "CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY,
             auto_launch BOOL,
+            start_minimized_state BOOL,
             mute_state BOOL,
             mic_mute_audio_volume REAL
         )",
@@ -48,8 +49,8 @@ fn init_settings_table(db_connection: &Connection) {
         .expect("Failed to create settings Table");
     db_connection
         .execute(
-            "INSERT OR IGNORE INTO settings(id, auto_launch, mute_state, mic_mute_audio_volume) VALUES(?1, ?2, ?3, ?4)",
-            (1, true, false, 0.1),
+            "INSERT OR IGNORE INTO settings(id, auto_launch, start_minimized_state, mute_state, mic_mute_audio_volume) VALUES(?1, ?2, ?3, ?4, ?5)",
+            (1, true, false, false, 0.1),
         )
         .expect("Insert or ignore settings");
     println!("Debug: Created settings table");
@@ -122,6 +123,24 @@ pub fn set_mic_mute_audio_volume(new_volume: f32) -> Result<()> {
     conn.execute(
         "UPDATE settings SET mic_mute_audio_volume=?1 where id=1",
         (new_volume,),
+    )?;
+    Ok(())
+}
+
+pub fn fetch_start_minimized_state() -> Result<bool> {
+    let conn = open_db()?;
+    Ok(
+        conn.query_row("Select start_minimized_state from settings", (), |row| {
+            row.get(0)
+        })?,
+    )
+}
+
+pub fn set_start_minimized_state(new_state: bool) -> Result<()> {
+    let conn = open_db()?;
+    conn.execute(
+        "UPDATE settings SET start_minimized_state=?1 where id=1",
+        (new_state,),
     )?;
     Ok(())
 }

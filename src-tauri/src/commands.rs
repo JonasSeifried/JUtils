@@ -48,3 +48,13 @@ pub fn get_mic_mute_audio_volume() -> Result<i32> {
     let volume = db::get_mic_mute_audio_volume()?;
     Ok((volume * 100.0) as i32)
 }
+
+#[tauri::command]
+pub fn set_start_minimized_state(new_state: bool) -> Result<()> {
+    db::set_start_minimized_state(new_state)
+}
+
+#[tauri::command]
+pub fn fetch_start_minimized_state() -> Result<bool> {
+    db::fetch_start_minimized_state()
+}

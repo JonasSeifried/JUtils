@@ -24,10 +24,10 @@ onMounted(() => {
 
 <template>
   <label
-    class="relative flex w-max cursor-pointer select-none items-center"
+    class="relative flex w-full cursor-pointer select-none items-center justify-between"
     :title="props.toolTip"
   >
-    <span class="mr-3 text-lg font-bold text-white">{{ props.title }}</span>
+    <span class="text-lg font-bold text-white">{{ props.title }}</span>
     <input
       @change="toggle"
       v-model="checked"
