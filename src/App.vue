@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SideBar from "./components/SideBarComponent.vue";
 import Home from "./components/HomeComponent.vue";
-import Settings from "./components/SettingsComponent.vue";
+import Settings from "./components/settings/SettingsComponent.vue";
 import { shallowRef } from "vue";
 import MicMute from "./components/MicMuteComponent.vue";
 import Main from "./components/Main.vue";

@@ -3,6 +3,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error(transparent)]
+    TauriError(#[from] tauri::Error),
+
+    #[error(transparent)]
     SQLError(#[from] rusqlite::Error),
 
     #[cfg(windows)]

@@ -3,10 +3,11 @@
 
 use std::sync::Arc;
 
+use error::Result;
 use features::hotkey::{HotKeyManager, HotkeyState};
 use tauri::{
-    async_runtime::Mutex, AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent,
-    SystemTrayMenu, SystemTrayMenuItem,
+    async_runtime::Mutex, AppHandle, CustomMenuItem, GlobalWindowEvent, Manager, SystemTray,
+    SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, WindowEvent,
 };
 use tauri_plugin_autostart::MacosLauncher;
 
@@ -41,12 +42,13 @@ fn main() {
             commands::set_start_minimized_state,
         ])
         .system_tray(system_tray())
-        .on_system_tray_event(handle_tray_events)
+        .on_system_tray_event(|app_handle, event| handle_tray_events(app_handle, event).unwrap())
+        .on_window_event(|event| handle_window_events(event).unwrap())
         .manage(hotkey_state)
         .setup(move |app| {
             db::init_db();
             features::hotkey::init(hotkey_manager);
-            hide_on_startup(&app.app_handle());
+            hide_on_startup(&app.app_handle()).unwrap();
             Ok(())
         })
         .run(tauri::generate_context!())
@@ -63,41 +65,73 @@ fn system_tray() -> SystemTray {
     SystemTray::new().with_menu(tray_menu)
 }
 
-fn handle_tray_events(app_handle: &AppHandle, event: SystemTrayEvent) {
+fn handle_tray_events(app_handle: &AppHandle, event: SystemTrayEvent) -> Result<()> {
     match event {
         SystemTrayEvent::LeftClick {
             position: _,
             size: _,
             ..
-        } => show_window(true, app_handle),
+        } => show_window(true, app_handle)?,
         SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
             QUIT_TRAY_ID => app_handle.exit(0),
             VISABILITY_TRAY_ID => show_window(
-                !app_handle.get_window("main").unwrap().is_visible().unwrap(),
+                !app_handle
+                    .get_window("main")
+                    .expect("window should be labeled main")
+                    .is_visible()?,
                 app_handle,
-            ),
+            )?,
             _ => {}
         },
         _ => {}
     }
+    Ok(())
 }
 
-fn show_window(show: bool, app_handle: &AppHandle) {
+fn show_window(show: bool, app_handle: &AppHandle) -> Result<()> {
     let window = app_handle.get_window("main").unwrap();
     match show {
-        true => window.show().unwrap(),
-        false => window.hide().unwrap(),
+        true => {
+            window.show()?;
+            if window.is_minimized()? {
+                window.unminimize()?;
+            }
+        }
+        false => window.hide()?,
     }
     app_handle
         .tray_handle()
         .get_item(VISABILITY_TRAY_ID)
-        .set_title(if show { "Hide" } else { "Show" })
-        .unwrap();
+        .set_title(if show { "Hide" } else { "Show" })?;
+    Ok(())
 }
 
-fn hide_on_startup(app_handle: &AppHandle) {
+fn handle_window_events(event: GlobalWindowEvent) -> Result<()> {
+    match event.event() {
+        WindowEvent::Resized(_) => {
+            if event
+                .window()
+                .app_handle()
+                .get_window("main")
+                .expect("window should be labeled main")
+                .is_minimized()?
+            {
+                show_window(false, &event.window().app_handle())?
+            }
+        }
+        WindowEvent::CloseRequested { api, .. } => {
+            show_window(false, &event.window().app_handle())?;
+            api.prevent_close()
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+fn hide_on_startup(app_handle: &AppHandle) -> Result<()> {
     match db::fetch_start_minimized_state() {
-        Ok(start_minimized_state) => show_window(!start_minimized_state, app_handle),
+        Ok(start_minimized_state) => show_window(!start_minimized_state, app_handle)?,
         Err(error) => println!("Failed to fetch start_minimized_state {error}"),
     }
+    Ok(())
 }

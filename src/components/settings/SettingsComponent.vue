@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AutoStartSettingToggleComponent from "./settings/AutoStartSettingToggleComponent.vue";
-import StartMinimizedToggleComponent from "./settings/StartMinimizedToggleComponent.vue";
+import AutoStartSettingToggleComponent from "./AutoStartSettingToggleComponent.vue";
+import StartMinimizedToggleComponent from "./StartMinimizedToggleComponent.vue";
 </script>
 
 <template>
