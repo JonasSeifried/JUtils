@@ -1,5 +1,6 @@
 use crate::error::Error;
 
+#[cfg(target_os = "windows")]
 use windows::{
     core::GUID,
     Win32::{
@@ -13,6 +14,7 @@ use windows::{
     },
 };
 
+#[cfg(target_os = "windows")]
 pub fn toggle_mic(mute: bool) -> Result<(), Error> {
     unsafe {
         let _ = CoInitialize(None)?;
@@ -29,5 +31,10 @@ pub fn toggle_mic(mute: bool) -> Result<(), Error> {
         CoUninitialize();
     }
 
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+pub fn toggle_mic(mute: bool) -> Result<(), Error> {
     Ok(())
 }
