@@ -5,11 +5,13 @@ use std::sync::Arc;
 
 use error::Result;
 use features::hotkey::{HotKeyManager, HotkeyState};
+use log::{warn, LevelFilter};
 use tauri::{
     async_runtime::Mutex, AppHandle, CustomMenuItem, GlobalWindowEvent, Manager, SystemTray,
     SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, WindowEvent,
 };
 use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_log::LogTarget;
 
 mod commands;
 mod db;
@@ -27,11 +29,26 @@ fn main() {
     let hotkey_state = HotkeyState(Arc::new(Mutex::new(HotKeyManager::new())));
     let hotkey_manager = Arc::clone(&hotkey_state.0);
 
+    #[cfg(debug_assertions)]
+    const LOG_LEVEL_FILTER: LevelFilter = LevelFilter::Debug;
+    #[cfg(debug_assertions)]
+    const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Webview];
+    #[cfg(not(debug_assertions))]
+    const LOG_TARGETS: [LogTarget; 1] = [LogTarget::LogDir];
+    #[cfg(not(debug_assertions))]
+    const LOG_LEVEL_FILTER: LevelFilter = LevelFilter::Info;
+
     tauri::Builder::default()
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             None,
         ))
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets(LOG_TARGETS)
+                .level(LOG_LEVEL_FILTER)
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
             commands::fetch_mic_mute_hotkey,
             commands::set_mic_mute_hotkey,
@@ -46,7 +63,7 @@ fn main() {
         .on_window_event(|event| handle_window_events(event).unwrap())
         .manage(hotkey_state)
         .setup(move |app| {
-            db::init_db();
+            db::init_db(app.path_resolver().resource_dir());
             features::hotkey::init(hotkey_manager);
             hide_on_startup(&app.app_handle()).unwrap();
             Ok(())
@@ -131,7 +148,7 @@ fn handle_window_events(event: GlobalWindowEvent) -> Result<()> {
 fn hide_on_startup(app_handle: &AppHandle) -> Result<()> {
     match db::fetch_start_minimized_state() {
         Ok(start_minimized_state) => show_window(!start_minimized_state, app_handle)?,
-        Err(error) => println!("Failed to fetch start_minimized_state {error}"),
+        Err(error) => warn!("Failed to fetch start_minimized_state {error}"),
     }
     Ok(())
 }

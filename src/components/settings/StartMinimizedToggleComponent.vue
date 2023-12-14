@@ -2,14 +2,15 @@
 import { onMounted, ref } from "vue";
 import ToggleComponent from "../ToggleComponent.vue";
 import { invoke } from "@tauri-apps/api";
+import { debug, error } from "tauri-plugin-log-api";
 
 const initValue = ref(false);
 const isFetching = ref(true);
 
 function autoStartToggle(newValue: boolean) {
   invoke("set_start_minimized_state", { newState: newValue })
-    .then(() => console.log(`autoStart -> ${newValue}`))
-    .catch((err) => console.log(err));
+    .then(() => debug(`autoStart -> ${newValue}`))
+    .catch((err) => error(err));
 }
 
 onMounted(() => {
@@ -18,7 +19,7 @@ onMounted(() => {
       initValue.value = initState;
       isFetching.value = false;
     })
-    .catch((err) => console.log(err));
+    .catch((err) => error(err));
 });
 </script>
 

@@ -5,6 +5,7 @@ import { HotkeyNames } from "../hotkey-manager";
 import { invoke } from "@tauri-apps/api";
 import { computed, ref } from "vue";
 import { SnackBarType } from "../snack-bar-type";
+import { debug } from "tauri-plugin-log-api";
 
 const snackBarText = ref("");
 const snackBarOpen = ref(false);
@@ -31,7 +32,7 @@ async function loadMicMuteSilderValue() {
     setSnackBar(err);
     return;
   });
-  console.log(`loaded Mic Mute Slider Value -> ${res}%`);
+  debug(`loaded Mic Mute Slider Value -> ${res}%`);
 
   micMuteSliderValue.value = res as number;
 }

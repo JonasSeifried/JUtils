@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import ToggleComponent from "../ToggleComponent.vue";
 import { enable, isEnabled, disable } from "tauri-plugin-autostart-api";
+import { debug } from "tauri-plugin-log-api";
 
 const initValue = ref(false);
 const isFetching = ref(true);
@@ -14,7 +15,7 @@ async function autoStartToggle(newValue: boolean) {
   } else {
     await disable();
   }
-  console.log(`autoStart -> ${newValue}`);
+  debug(`autoStart -> ${newValue}`);
 }
 
 onMounted(async () => {

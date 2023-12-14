@@ -156,93 +156,6 @@ async fn event_loop(hotkey_manager_mutex: Arc<tauri::async_runtime::Mutex<HotKey
             }
         }
     }
-
-    /* GlobalHotKeyEvent::set_event_handler(Some(move |e: GlobalHotKeyEvent| {
-        if let Some(registered_hotkey) = hotkey_manager.hotkeys.lock().unwrap().get(&e.id) {
-            if e.state == HotKeyState::Released {
-                hotkey_manager
-                    .active_hotkeys
-                    .lock()
-                    .unwrap()
-                    .retain(|id| id != &registered_hotkey.hotkey.id());
-                return;
-            }
-
-            hotkey_manager
-                .active_hotkeys
-                .lock()
-                .unwrap()
-                .push(registered_hotkey.hotkey.id());
-
-            let all_pressed = hotkey_manager
-                .required_hotkeys
-                .lock()
-                .unwrap()
-                .get(&registered_hotkey.name)
-                .expect("All hotkeys must be added to required_hotkeys")
-                .iter()
-                .all(|id| hotkey_manager.active_hotkeys.lock().unwrap().contains(id));
-            if all_pressed {
-                match registered_hotkey.name.as_str() {
-                    MICMUTE => crate::commands::toggle_mic(),
-                    _ => Err(Error::UnexpectedError(format!(
-                        "Hotkey name {} did not match",
-                        registered_hotkey.name
-                    ))),
-                };
-            }
-        }
-    })) */
-    /*     let receiver = GlobalHotKeyEvent::receiver();
-    let event_loop = EventLoopBuilder::new().build().unwrap();
-
-    event_loop
-        .run(move |_event, event_loop| {
-            event_loop.set_control_flow(ControlFlow::Wait);
-
-            if let Ok(event) = receiver.try_recv() {
-                if let Some(registered_hotkey) =
-                    hotkey_manager.hotkeys.lock().unwrap().get(&event.id)
-                {
-                    if event.state == HotKeyState::Released {
-                        hotkey_manager
-                            .active_hotkeys
-                            .lock()
-                            .unwrap()
-                            .retain(|id| id != &registered_hotkey.hotkey.id());
-                        return;
-                    }
-
-                    hotkey_manager
-                        .active_hotkeys
-                        .lock()
-                        .unwrap()
-                        .push(registered_hotkey.hotkey.id());
-
-                    let all_pressed = hotkey_manager
-                        .required_hotkeys
-                        .lock()
-                        .unwrap()
-                        .get(&registered_hotkey.name)
-                        .expect("All hotkeys must be added to required_hotkeys")
-                        .iter()
-                        .all(|id| hotkey_manager.active_hotkeys.lock().unwrap().contains(id));
-                    if all_pressed {
-                        let res = match registered_hotkey.name.as_str() {
-                            MICMUTE => crate::commands::toggle_mic(),
-                            _ => Err(Error::UnexpectedError(format!(
-                                "Hotkey name {} did not match",
-                                registered_hotkey.name
-                            ))),
-                        };
-                        if let Err(err) = res {
-                            let _ = app.handle().emit_all("backend-error", &err);
-                        }
-                    }
-                }
-            }
-        })
-        .expect("Failed to start GlobalHotkey event loop"); */
 }
 
 fn load_hotkeys(hotkey_manager: &tauri::async_runtime::Mutex<HotKeyManager>) {
@@ -250,7 +163,6 @@ fn load_hotkeys(hotkey_manager: &tauri::async_runtime::Mutex<HotKeyManager>) {
 }
 
 fn load_hotkey(hotkey_manager: &tauri::async_runtime::Mutex<HotKeyManager>, name: &str) {
-    println!("Loading {}", name);
     hotkey_manager
         .blocking_lock()
         .register_hotkey(

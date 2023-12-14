@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api";
 import { computed, onMounted, ref, Ref } from "vue";
 import { SnackBarType } from "../snack-bar-type";
 import { HotkeyNames } from "../hotkey-manager";
+import { error, info } from "tauri-plugin-log-api";
 
 const probs = defineProps<{
   hotkey_name: HotkeyNames;
@@ -38,9 +39,9 @@ async function submit() {
           : `${hotkeyString.value} registered!`;
       setSnackBar(msg, SnackBarType.success);
     })
-    .catch((error) => {
-      console.log(error);
-      setSnackBar(error as string, SnackBarType.error);
+    .catch((err) => {
+      error(err);
+      setSnackBar(err as string, SnackBarType.error);
     });
 }
 
@@ -54,7 +55,6 @@ function clear() {
 function inputKeyDown(payload: KeyboardEvent) {
   payload.preventDefault();
   if (payload.repeat) return;
-  console.log(payload);
   inputHasChanged = true;
   if (!hotkeyIsBeingEdited) {
     keys.value.clear();
@@ -62,14 +62,12 @@ function inputKeyDown(payload: KeyboardEvent) {
   }
 
   keys.value.set(payload.code, payload.key.toLowerCase());
-  console.log(keys);
 }
 function inputKeyUp() {
   hotkeyIsBeingEdited = false;
 }
 
 const hotkeyString = computed(() => {
-  console.log(Array.from(keys.value.keys()).join("+"));
   return Array.from(keys.value.values()).join("+");
 });
 
@@ -82,13 +80,13 @@ function setSnackBar(msg: string, type: SnackBarType = SnackBarType.error) {
 onMounted(() => {
   invoke<[string]>(`fetch_${probs.hotkey_name}_hotkey`)
     .then((hotkey: [string]) => {
-      console.log("loaded: " + hotkey);
+      info("loaded hotkey: " + hotkey);
       for (const key of hotkey) {
         keys.value.set(key, key);
       }
     })
     .catch((err) => {
-      console.log(err);
+      error(err);
       setSnackBar(err as string, SnackBarType.error);
     });
 });

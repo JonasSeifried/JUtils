@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "tauri-plugin-autostart-api": "github:tauri-apps/tauri-plugin-autostart#v1",
+    "tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log#v1",
     "vue": "^3.3.4"
   },
   "devDependencies": {
