@@ -38,3 +38,8 @@ pub fn toggle_mic(mute: bool) -> Result<(), Error> {
 pub fn toggle_mic(mute: bool) -> Result<(), Error> {
     Ok(())
 }
+
+#[cfg(target_os = "linux")]
+pub fn toggle_mic(mute: bool) -> Result<(), Error> {
+    Ok(())
+}
