@@ -1,7 +1,17 @@
-# Tauri + Vue + TypeScript
+# JUtils
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Welcome to **JUtils**, a desktop and system tray utility application. It's built with a combination of [Tauri](https://tauri.app/), a framework for building secure, and cross-platform applications, and [Vue.js](https://vuejs.org/), a progressive JavaScript framework for building user interfaces. The application is written in Rust and TypeScript, ensuring high performance and strong type safety.
 
-## Recommended IDE Setup
+Currently, JUtils supports only Windows operating systems fully.
 
-- [VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## Features
+
+JUtils offers the following features, all of which are accessible via global, system-wide hotkeys:
+
+- **Global Microphone Toggle**: This feature allows you to toggle your microphone on and off, regardless of the application you're currently using. You can also choose to play a sound when toggling the microphone, providing clear auditory feedback.
+
+- **Start JUtils on Startup**: You can configure JUtils to automatically start when your system boots up. This ensures that the utility is always ready to use when you need it.
+
+- **Minimize JUtils**: If you prefer a clean taskbar, you can choose to start JUtils in a minimized state. This keeps the utility out of your way.
+
+Stay tuned for more features in future updates!
