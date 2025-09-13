@@ -13,7 +13,7 @@ pub fn toggle_mic(app_handle: tauri::AppHandle) -> Result<()> {
 
     // Play sound when mic toggled
 
-    let store = app_handle.store(".settings.json")?;
+    let store = app_handle.clone().store(".settings.json")?;
     let volume = store
         .get("mic_mute_audio_volume")
         .and_then(|v| {
@@ -23,7 +23,8 @@ pub fn toggle_mic(app_handle: tauri::AppHandle) -> Result<()> {
         .ok_or(Error::UnexpectedError(
             "Failed to get mic mute audio volume".to_string(),
         ))? as f32;
-    audio_manager::play_mute_sound(new_state, volume / 100.0)
+
+    audio_manager::play_mute_sound(new_state, volume / 100.0, app_handle)
 }
 
 #[tauri::command]

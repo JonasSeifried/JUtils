@@ -1,8 +1,7 @@
-use crate::error::Error;
+use crate::error::Result;
 use crate::windows_common::ComInit;
 
-#[cfg(target_os = "windows")]
-pub fn toggle_mic() -> Result<bool, Error> {
+pub fn toggle_mic() -> Result<bool> {
     use windows::{
         core::GUID,
         Win32::{
@@ -28,14 +27,4 @@ pub fn toggle_mic() -> Result<bool, Error> {
         iae.SetMute(new_state, &GUID::default())?;
         Ok(new_state)
     }
-}
-
-#[cfg(target_os = "macos")]
-pub fn toggle_mic() -> Result<bool, Error> {
-    Ok(())
-}
-
-#[cfg(target_os = "linux")]
-pub fn toggle_mic() -> Result<bool, Error> {
-    Ok(())
 }

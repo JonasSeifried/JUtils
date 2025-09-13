@@ -11,11 +11,11 @@ pub enum Error {
     #[error(transparent)]
     TauriStoreError(#[from] tauri_plugin_store::Error),
 
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     #[error(transparent)]
     WindowsError(#[from] windows_result::Error),
 
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     #[error(transparent)]
     FromUtf16Error(#[from] FromUtf16Error),
 
@@ -34,13 +34,11 @@ pub enum Error {
     #[error(transparent)]
     AudioPlayError(#[from] rodio::PlayError),
 
-    // #[error(transparent)]
-    // GlobalHotKeyError(#[from] global_hotkey::Error),
-
-    // #[error(transparent)]
-    // AppDirsError(#[from] app_dirs2::AppDirsError),
     #[error("{0}")]
     UnexpectedError(String),
+
+    #[error("{0}")]
+    Unimplemented(String),
 }
 
 impl serde::Serialize for Error {

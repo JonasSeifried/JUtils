@@ -4,6 +4,7 @@ mod commands;
 mod error;
 mod features;
 mod window;
+#[cfg(target_os = "windows")]
 mod windows_common;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

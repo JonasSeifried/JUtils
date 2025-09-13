@@ -1,7 +1,6 @@
 use crate::error::{Error, Result};
 use std::collections::HashSet;
 
-#[cfg(target_os = "windows")]
 use windows::Win32::Media::Audio::ISimpleAudioVolume;
 use windows::Win32::System::Com;
 use windows::Win32::{
@@ -18,13 +17,11 @@ use windows_core::{Interface, GUID};
 
 use crate::windows_common::ComInit;
 
-#[cfg(target_os = "windows")]
 struct SessionInfo {
     display_name: String,
     exe_name: Option<String>,
 }
 
-#[cfg(target_os = "windows")]
 fn extract_session_info(session_control: &IAudioSessionControl) -> Result<SessionInfo> {
     let session_control2: IAudioSessionControl2 = session_control.cast()?;
     let display_name = unsafe { session_control.GetDisplayName() }?;
@@ -72,7 +69,6 @@ fn extract_session_info(session_control: &IAudioSessionControl) -> Result<Sessio
     })
 }
 
-#[cfg(target_os = "windows")]
 pub fn get_running_apps_with_audio_sessions() -> Result<Vec<String>> {
     let _com_init = ComInit::new();
     let mut app_names: HashSet<String> = HashSet::new();
@@ -107,7 +103,6 @@ pub fn get_running_apps_with_audio_sessions() -> Result<Vec<String>> {
     }
 }
 
-#[cfg(target_os = "windows")]
 pub fn mute_app_by_name(app_name: &str) -> Result<()> {
     let _com_init = ComInit::new();
     let mut muted = false;
@@ -150,7 +145,6 @@ pub fn mute_app_by_name(app_name: &str) -> Result<()> {
     }
 }
 
-#[cfg(target_os = "windows")]
 fn mute_session(session_control: &IAudioSessionControl) -> Result<()> {
     let simple_audio_volume: ISimpleAudioVolume = session_control.cast()?;
     let mute: bool = unsafe { simple_audio_volume.GetMute()?.into() };
